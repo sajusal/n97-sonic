@@ -41,7 +41,7 @@ Both leafs and Spine nodes will be running the latest SONiC 202511 release.
 
 All 4 clients will be running [Alpine Linux](https://alpinelinux.org/)
 
-## Deploying the lab
+## Installing Containerlab
 
 Install Containerlab on your VM.
 
@@ -50,6 +50,35 @@ curl -sL https://containerlab.dev/setup | sudo -E bash -s "all"
 ```
 
 Logout and login for the sudo privileges to take effect.
+
+## Importing SONiC docker image
+
+SONiC docker image (made using [vrnetlab](https://github.com/srl-labs/vrnetlab/tree/master) is available on your VM.
+
+```bash
+ls -lrt /images/docker-sonic-vs-2511
+```
+
+Import this image to docker repo
+
+```bash
+docker load -i /images/docker-sonic-vs-2511
+```
+
+Verify that the image is available in the docker repo
+
+```bash
+docker images
+```
+
+Expected output:
+
+```bash
+REPOSITORY                                  TAG        IMAGE ID       CREATED         SIZE
+vrnetlab/sonic_sonic-vs                     2511       d1afa72af30e   2 weeks ago     5.91GB
+```
+
+## Deploying the lab
 
 Use the below command to clone this repo to your VM.
 
@@ -167,83 +196,39 @@ sudo docker exec –it client3 sh
 
 ## Physical link connectivity
 
-When the lab is deployed with the default startup config, all the links are created with IPv4 and IPv6 addresses.
+When the lab is deployed with the default startup config, all the links are created with IPv4 addresses.
 
 This allows to start configuring the protocols right away.
 
-Here's a summary of what is included in the startup config:
+Check the [startup config](configs/fabric-config/) files to see how these objects are configured in SONiC.
 
-- Configure interfaces between Leaf & Spine
-- Configure interface between Leaf & Client
-- Configure system loopback
-- Configure route policy to advertise system loopback (this policy will be later applied under BGP)
-- Configure default Network Instance (VRF) and add system loopback and Leaf/Spine interfaces to this VRF
-- Configure IPs and static routes on Clients
+After logging in to a SONiC switch, switch to the FRR CLI using:
 
-Check the [startup config](n92-evpn-lab/configs/fabric/startup) files to see how these objects are configured in SR Linux.
+```bash
+vtysh
+```
 
-To view Interface status on SR Linux use:
+To view Interface status on SONiC use:
 
-```srl
-show interface
+```bash
+show interface brief
 ```
 
 ### IPv4 Link Addressing
 
-![image](images/lab-ipv4-2.jpg)
-
-### IPv6 Link Addressing
-
-![image](images/lab-ipv6.jpg)
+![image](images/lab-ipv4.jpg)
 
 ### Verify reachability between devices
 
 After the lab is deployed, check reachability between leaf and spine devices using ping.
 
-Example on spine to Leaf1 using IPv4:
+Example on spine to Leaf1:
 
-```srl
-ping -c 3 192.168.10.2 network-instance default
+```bash
+ping 192.168.10.2
 ```
 
-Example on spine to Leaf1 using IPv6:
-
-```srl
-ping6 -c 3 192:168:10::2 network-instance default
-```
-
-## SR Linux Configuration Mode
-
-To enter candidate configuration edit mode in SR Linux, use:
-
-```srl
-enter candidate
-```
-
-To commit the configuration in SR Linux, use:
-
-```srl
-commit stay
-```
-
-Here's a reference table with some commonly used commands.
-
-| Action | Command |
-| --- | --- |
-| Enter Candidate mode | `enter candidate {private}` |
-| Commit configuration changes | `commit {now\|stay}` |
-| | `now` – commits and exits from candidate mode |
-| | `stay` – commits and stays in candidate mode |
-| Delete configuration elements | `delete` |
-| | Eg: `delete interface ethernet-1/5` |
-| Discard configuration changes | `discard {now\|stay}` |
-| Compare candidate to running | `diff running /` |
-| View configuration in current mode & context | `info {flat}` |
-| View configuration in another mode & context | `info {flat} from state /interface ethernet-1/1` |
-| Output modifiers | `<command> \| as {table\|json\|yaml}` |
-| Access Linux shell | `bash` |
-| Find a command | `tree flat detail \| grep <keyword>` |
-
+Stop the ping using CTRL+c
 
 ## Configure BGP Underlay
 
