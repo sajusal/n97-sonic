@@ -703,9 +703,7 @@
     },
     "INTERFACE": {
         "Ethernet4": {},
-        "Ethernet4|192.168.20.2/31": {},
-        "Ethernet40": {},
-        "Ethernet40|10.90.1.2/24": {}
+        "Ethernet4|192.168.20.2/31": {}
     },
     "KDUMP": {
         "config": {
