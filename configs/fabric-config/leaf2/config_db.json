@@ -474,7 +474,6 @@
     },
     "DEVICE_METADATA": {
         "localhost": {
-            "bgp_asn": "65100",
             "buffer_model": "traditional",
             "default_bgp_status": "up",
             "default_pfcwd_status": "disable",
