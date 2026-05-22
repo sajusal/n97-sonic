@@ -476,7 +476,7 @@
             "buffer_model": "traditional",
             "default_bgp_status": "up",
             "default_pfcwd_status": "disable",
-            "hostname": "sonic",
+            "hostname": "spine",
             "hwsku": "Force10-S6000",
             "mac": "22:36:3d:c4:57:d3",
             "platform": "x86_64-kvm_x86_64-r0",
