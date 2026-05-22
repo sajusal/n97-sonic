@@ -702,9 +702,7 @@
     },
     "INTERFACE": {
         "Ethernet0": {},
-        "Ethernet0|192.168.10.2/31": {},
-        "Ethernet40": {},
-        "Ethernet40|10.80.1.2/24": {}
+        "Ethernet0|192.168.10.2/31": {}
     },
     "KDUMP": {
         "config": {
