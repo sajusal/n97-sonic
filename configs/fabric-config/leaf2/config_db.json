@@ -703,7 +703,7 @@
         }
     },
     "INTERFACE": {
-        "Ethernet0": {},
+        "Ethernet4": {},
         "Ethernet4|192.168.20.2/31": {},
         "Ethernet36": {},
         "Ethernet36|172.16.10.2/24": {},
