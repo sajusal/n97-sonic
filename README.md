@@ -33,7 +33,7 @@ The objective of the hands on section of this workshop is the following:
 
 Each workshop participant will be provided with the below topology consisting of 2 leaf and 1 spine nodes along with 4 clients.
 
-![image](images/lab-topology.jpg)
+![image](images/lab-topology.png)
 
 ## NOS (Network Operating System)
 
@@ -216,7 +216,7 @@ show interface brief
 
 ### IPv4 Link Addressing
 
-![image](images/lab-ipv4.jpg)
+![image](images/lab-ipv4.png)
 
 ### Verify reachability between devices
 
@@ -246,7 +246,7 @@ We will use the IPv4 interface address to form BGP sessions between Leaf and Spi
 
 We will export the loopback IP over BGP to other nodes. This is required to create our overlay sessions in the next step.
 
-![image](images/bgp-underlay.jpg)
+![image](images/bgp-underlay.png)
 
 ### BGP Underlay Configuration
 
@@ -376,7 +376,7 @@ For establishing overlay BGP session between Leaf1 and Leaf2, we will use the Lo
 
 BGP overlay configuration is not required on the Spine as Spine is not aware of EVPN routes.
 
-![image](images/bgp-overlay.jpg)
+![image](images/bgp-overlay.png)
 
 ### BGP Overlay Configuration
 
@@ -457,7 +457,7 @@ The objective is to establish a connection between Client 1 (connected to Leaf1)
 
 Both the clients are in the same subnet (172.16.10.0/24) and therefore, this will be a Layer 2 connection. From a client perspective, it is just like they are connected to a Layer 2 switch.
 
-![image](images/l2-evpn.jpg)
+![image](images/l2-evpn.png)
 
 ### Configure Client Interface
 
@@ -743,7 +743,7 @@ Our final step is to configure a Layer 3 EVPN-VXLAN.
 
 The objective is to connect Client 2 and Client 4 over a Layer 3 EVPN.
 
-![image](images/l3-evpn.jpg)
+![image](images/l3-evpn.png)
 
 ### Configure Client Interface
 
@@ -932,85 +932,6 @@ default via 172.20.20.1 dev eth0
 When the ICMP ping packet reaches Leaf1, it checks the destination IP (10.90.1.1) against it's route-table. As seen in the above route-table output, the next-hop for this destination is a VXLAN tunnel to 2.2.2.2 (Leaf2) with VNI 200.
 
 The ICMP packet is encapsulated in VXLAN and sent to 2.2.2.2 (Leaf2). On Leaf2, the VXLAN encapsulation is removed and the ICMP packet is forwarded to the Client. The ping reponse follows similar path back to Leaf1.
-
-## Bonus - Interconnecting Layer 2 and Layer 3 using IRB
-
-In this section, our objective is to connect the MAC-VRF to IP-VRF so that Client1 (using IP 172.16.10.50) is able to ping Client4 (10.90.1.1).
-
-Typical use case is when there is a mix of Layer 2 and Layer 3 devices within the same client network.
-
-We will use an IRB (Integrated Routing and Bridging) to inter-connect Layer 2 ( mac-vrf) and Layer 3 (ip-vrf).
-
-![image](images/bonus-irb.jpg)
-
-### IRB Configuration
-
-The IP address on the IRB will act as a gateway for Layer 2 devices.
-
-IRB configuration on Leaf1:
-
-```srl
-set / interface irb1 admin-state enable
-set / interface irb1 subinterface 100 ipv4 admin-state enable
-set / interface irb1 subinterface 100 ipv4 address 172.16.10.254/24
-set / interface irb1 subinterface 100 ipv4 arp evpn advertise dynamic
-```
-
-IRB configuration on Leaf2:
-
-```srl
-set / interface irb1 admin-state enable
-set / interface irb1 subinterface 100 ipv4 admin-state enable
-set / interface irb1 subinterface 100 ipv4 address 172.16.10.253/24
-set / interface irb1 subinterface 100 ipv4 arp evpn advertise dynamic
-```
-
-### Attaching IRB to MAC-VRF and IP-VRF
-
-The same IRB interface is now attached to both network instances.
-
-On Leaf1:
-
-```srl
-set / network-instance mac-vrf-1 interface irb1.100
-set / network-instance ip-vrf-1 interface irb1.100
-```
-
-On Leaf2:
-
-```srl
-set / network-instance mac-vrf-1 interface irb1.100
-set / network-instance ip-vrf-1 interface irb1.100
-```
-
-### Ping between Client 1 & 4
-
-Login to Client 1 using:
-
-```bash
-sudo docker exec -it client1 sh
-```
-
-Ping Client4 IP from Client1:
-
-```bash
-ping -c 3 10.90.1.1
-```
-
-Expected output:
-
-```bash
-PING 10.90.1.1 (10.90.1.1) 56(84) bytes of data.
-64 bytes from 10.90.1.1: icmp_seq=1 ttl=63 time=592 ms
-64 bytes from 10.90.1.1: icmp_seq=2 ttl=63 time=0.594 ms
-64 bytes from 10.90.1.1: icmp_seq=3 ttl=63 time=0.578 ms
-
---- 10.90.1.1 ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2051ms
-rtt min/avg/max/mdev = 0.578/197.560/591.508/278.563 ms
-```
-
-By now, you should have an understanding of how this ping worked. If you have questions, please raise your hand and a Nokia team member will be happy to help.
 
 ## Explore this lab with everything pre-configured
 
