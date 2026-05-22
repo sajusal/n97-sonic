@@ -339,7 +339,7 @@ Hostname: sonic
 The route table for the default network instance (VRF) should now show the system loopback IP of other nodes.
 
 ```bash
-show ip route
+do show ip route
 ```
 
 Output on Leaf1:
@@ -372,7 +372,7 @@ Overlay refers to the connectivity between nodes that are not necessarily direct
 
 Our end goal is to have an EVPN service between Leaf1 and Leaf2. BGP is required to advertise EVPN routes between the leaf devices.
 
-For establishing overlay BGP session between Leaf1 and Leaf2, we will use the system loopback IP of the Leaf nodes. These IPs are pre-configured as part of initial lab deployment and can be verified using `show interface system0` command.
+For establishing overlay BGP session between Leaf1 and Leaf2, we will use the Loopback0 IP of the Leaf nodes. These IPs are pre-configured as part of initial lab deployment and can be verified using `show interface Loopback0` command.
 
 BGP overlay configuration is not required on the Spine as Spine is not aware of EVPN routes.
 
@@ -382,67 +382,68 @@ BGP overlay configuration is not required on the Spine as Spine is not aware of 
 
 BGP Overlay configuration on Leaf1:
 
-```srl
-set / network-instance default protocols bgp group evpn peer-as 65500
-set / network-instance default protocols bgp group evpn multihop admin-state enable
-set / network-instance default protocols bgp group evpn afi-safi evpn admin-state enable
-set / network-instance default protocols bgp group evpn afi-safi ipv4-unicast admin-state disable
-set / network-instance default protocols bgp group evpn afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp group evpn local-as as-number 65500
-set / network-instance default protocols bgp neighbor 2.2.2.2 peer-group evpn
-set / network-instance default protocols bgp neighbor 2.2.2.2 transport local-address 1.1.1.1
-set / network-instance default protocols bgp neighbor 2001::2 peer-group evpn
-set / network-instance default protocols bgp neighbor 2001::2 transport local-address 2001::1
+```bash
+router bgp 64501
+ neighbor 2.2.2.2 remote-as 64502
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 2.2.2.2 ebgp-multihop 2
+ !
+ address-family l2vpn evpn
+  neighbor 2.2.2.2 activate
+ exit-address-family
+ address-family ipv4 unicast
+  no neighbor 2.2.2.2 activate
+ exit-address-family
+ !
+exit
+!
 ```
 
 BGP Overlay configuration on Leaf2:
 
-```srl
-set / network-instance default protocols bgp group evpn peer-as 65500
-set / network-instance default protocols bgp group evpn multihop admin-state enable
-set / network-instance default protocols bgp group evpn afi-safi evpn admin-state enable
-set / network-instance default protocols bgp group evpn afi-safi ipv4-unicast admin-state disable
-set / network-instance default protocols bgp group evpn afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp group evpn local-as as-number 65500
-set / network-instance default protocols bgp neighbor 1.1.1.1 peer-group evpn
-set / network-instance default protocols bgp neighbor 1.1.1.1 transport local-address 2.2.2.2
-set / network-instance default protocols bgp neighbor 2001::1 peer-group evpn
-set / network-instance default protocols bgp neighbor 2001::1 transport local-address 2001::2
+```bash
+router bgp 64502
+ neighbor 1.1.1.1 remote-as 64501
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 1.1.1.1 ebgp-multihop 2
+ !
+ address-family l2vpn evpn
+  neighbor 1.1.1.1 activate
+ exit-address-family
+ address-family ipv4 unicast
+  no neighbor 1.1.1.1 activate
+ exit-address-family
+ !
+exit
+!
 ```
 
 ### BGP Overlay Verification
 
-The BGP overlay sessions should be UP now. Check using the following commands on Leaf1 or Leaf2.
+The BGP overlay sessions should be UP now. Check using the following command on Leaf1.
 
-```srl
-show network-instance default protocols bgp neighbor
+```bash
+show bgp neighbors 2.2.2.2
 ```
 
-The output confirms that EVPN neigbor sessions are established to both the IPv4 and IPv6 loopback IPs.
+The output confirms that EVPN neighbor sessions are established to Loopback0 IP.
 
-The output also displays the underlay IPv4 and IPv6 sessions.
+The devices are not currently advertising any EVPN routes.
 
-The devices are not currently advertising any EVPN routes which is the last column is all 0s.
-
-```srl
-A:leaf1# show network-instance default protocols bgp neighbor
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BGP neighbor summary for network-instance "default"
-Flags: S static, D dynamic, L discovered by LLDP, B BFD enabled, - disabled, * slow
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+-------------------+---------------------------+-------------------+-------+----------+---------------+---------------+--------------+---------------------------+
-|     Net-Inst      |           Peer            |       Group       | Flags | Peer-AS  |     State     |    Uptime     |   AFI/SAFI   |      [Rx/Active/Tx]       |
-+===================+===========================+===================+=======+==========+===============+===============+==============+===========================+
-| default           | 2.2.2.2                   | evpn              | S     | 65500    | established   | 0d:0h:26m:26s | evpn         | [0/0/0]                   |
-| default           | 192.168.10.3              | ebgp              | S     | 64500    | established   | 0d:0h:26m:36s | ipv4-unicast | [1/1/1]                   |
-| default           | 192:168:10::3             | ebgp              | S     | 64500    | established   | 0d:0h:26m:41s | ipv6-unicast | [1/1/1]                   |
-| default           | 2001::2                   | evpn              | S     | 65500    | established   | 0d:0h:26m:27s | evpn         | [0/0/0]                   |
-+-------------------+---------------------------+-------------------+-------+----------+---------------+---------------+--------------+---------------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Summary:
-4 configured neighbors, 4 configured sessions are established, 0 disabled peers
-0 dynamic peers
+```bash
+BGP neighbor is 2.2.2.2, remote AS 64502, local AS 64501, external link
+  Local Role: undefined
+  Remote Role: undefined
+Hostname: sonic
+  BGP version 4, remote router ID 2.2.2.2, local router ID 1.1.1.1
+  BGP state = Established, up for 00:00:13
+<--snip-->
+ For address family: L2VPN EVPN
+  Update group 2, subgroup 3
+  Packet Queue length 0
+  NEXT_HOP is propagated unchanged to this neighbor
+  Community attribute sent to this neighbor(all)
+  0 accepted, 0 sent prefixes
 ```
 
 ## Configure L2 EVPN-VXLAN
