@@ -242,160 +242,126 @@ BGP is commonly used for this purpose in a Data Center network. Other options ar
 
 Each Leaf is in a separate Autonomous System (AS) and Spine is in it's own AS. This is typical in a Clos network.
 
-We will use the IPv4 and IPv6 interface address to form BGP sessions between Leaf and Spine nodes.
+We will use the IPv4 interface address to form BGP sessions between Leaf and Spine nodes.
 
-We will export the system loopback IP over BGP to other nodes. This is required to create our overlay sessions in the next step.
-
-The export policies are already created as part of the startup config. The routing policy config can be seen using the `info /routing-policy` command. In this step, we will apply them to BGP.
+We will export the loopback IP over BGP to other nodes. This is required to create our overlay sessions in the next step.
 
 ![image](images/bgp-underlay.jpg)
 
 ### BGP Underlay Configuration
 
+From FRR CLI (enter using `vtysh`), get into configuration mode by entering:
+
+```bash
+config
+```
+
 BGP underlay configuration on Leaf1:
 
-```srl
-set / network-instance default protocols bgp autonomous-system 64501
-set / network-instance default protocols bgp router-id 1.1.1.1
-set / network-instance default protocols bgp ebgp-default-policy import-reject-all false
-set / network-instance default protocols bgp ebgp-default-policy export-reject-all false
-set / network-instance default protocols bgp afi-safi ipv4-unicast admin-state enable
-set / network-instance default protocols bgp group ebgp peer-as 64500
-set / network-instance default protocols bgp group ebgp afi-safi ipv6-unicast admin-state enable
-set / network-instance default protocols bgp neighbor 192.168.10.3 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192.168.10.3 export-policy [ export-underlay-v4 ]
-set / network-instance default protocols bgp neighbor 192.168.10.3 afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp neighbor 192:168:10::3 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192:168:10::3 export-policy [ export-underlay-v6 ]
-set / network-instance default protocols bgp neighbor 192:168:10::3 afi-safi ipv4-unicast admin-state disable
+```bash
+router bgp 64501
+ bgp router-id 1.1.1.1
+ no bgp ebgp-requires-policy
+ neighbor 192.168.10.3 remote-as 64500
+ !
+ address-family ipv4 unicast
+  network 1.1.1.1/32
+  redistribute connected
+ exit-address-family
+ !
+exit
+!
 ```
 
 BGP underlay configuration on Leaf2:
 
-```srl
-set / network-instance default protocols bgp autonomous-system 64502
-set / network-instance default protocols bgp router-id 2.2.2.2
-set / network-instance default protocols bgp ebgp-default-policy import-reject-all false
-set / network-instance default protocols bgp ebgp-default-policy export-reject-all false
-set / network-instance default protocols bgp afi-safi ipv4-unicast admin-state enable
-set / network-instance default protocols bgp group ebgp peer-as 64500
-set / network-instance default protocols bgp group ebgp afi-safi ipv6-unicast admin-state enable
-set / network-instance default protocols bgp neighbor 192.168.20.3 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192.168.20.3 export-policy [ export-underlay-v4 ]
-set / network-instance default protocols bgp neighbor 192.168.20.3 afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp neighbor 192:168:20::3 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192:168:20::3 export-policy [ export-underlay-v6 ]
-set / network-instance default protocols bgp neighbor 192:168:20::3 afi-safi ipv4-unicast admin-state disable
+```bash
+router bgp 64502
+ bgp router-id 2.2.2.2
+ no bgp ebgp-requires-policy
+ neighbor 192.168.20.3 remote-as 64500
+ !
+ address-family ipv4 unicast
+  network 2.2.2.2/32
+  redistribute connected
+ exit-address-family
+ !
+exit
+!
 ```
 
 BGP underlay configuration on Spine:
 
-```srl
-set / network-instance default protocols bgp autonomous-system 64500
-set / network-instance default protocols bgp router-id 3.3.3.3
-set / network-instance default protocols bgp ebgp-default-policy import-reject-all false
-set / network-instance default protocols bgp ebgp-default-policy export-reject-all false
-set / network-instance default protocols bgp afi-safi ipv4-unicast admin-state enable
-set / network-instance default protocols bgp group ebgp afi-safi ipv6-unicast admin-state enable
-set / network-instance default protocols bgp neighbor 192.168.10.2 peer-as 64501
-set / network-instance default protocols bgp neighbor 192.168.10.2 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192.168.10.2 afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp neighbor 192.168.20.2 peer-as 64502
-set / network-instance default protocols bgp neighbor 192.168.20.2 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192.168.20.2 afi-safi ipv6-unicast admin-state disable
-set / network-instance default protocols bgp neighbor 192:168:10::2 peer-as 64501
-set / network-instance default protocols bgp neighbor 192:168:10::2 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192:168:10::2 afi-safi ipv4-unicast admin-state disable
-set / network-instance default protocols bgp neighbor 192:168:20::2 peer-as 64502
-set / network-instance default protocols bgp neighbor 192:168:20::2 peer-group ebgp
-set / network-instance default protocols bgp neighbor 192:168:20::2 afi-safi ipv4-unicast admin-state disable
+```bash
+router bgp 64500
+ bgp router-id 3.3.3.3
+ no bgp ebgp-requires-policy
+ neighbor 192.168.10.2 remote-as 64501
+ !
+ neighbor 192.168.20.2 remote-as 64502
+ !
+ address-family ipv4 unicast
+  network 3.3.3.3/32
+  redistribute connected
+ exit-address-family
+ !
+exit
+!
 ```
 
 ### BGP Underlay Verification
 
-The BGP underlay sessions should be UP now. Check using the following command on the Spine.
+The BGP underlay sessions should be UP now. Check using the following command on the Spine (while inside config mode).
 
-```srl
-show network-instance default protocols bgp neighbor
+```bash
+do show bgp ipv4 neighbors
 ```
 
-The output below confirms that both IPv4 and IPv6 BGP neighbor sessions are established between Spine and the 2 Leaf nodes.
+The output below confirms that IPv4 BGP neighbor sessions are established between Spine and the 2 Leaf nodes.
 
-The last column in the output shows the number of routes Received/Active/Transmitted by BGP. The count is 1 as we are exporting the system loopback IP.
-
-```srl
-A:spine# show network-instance default protocols bgp neighbor
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BGP neighbor summary for network-instance "default"
-Flags: S static, D dynamic, L discovered by LLDP, B BFD enabled, - disabled, * slow
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+-------------------+---------------------------+-------------------+-------+----------+---------------+---------------+--------------+---------------------------+
-|     Net-Inst      |           Peer            |       Group       | Flags | Peer-AS  |     State     |    Uptime     |   AFI/SAFI   |      [Rx/Active/Tx]       |
-+===================+===========================+===================+=======+==========+===============+===============+==============+===========================+
-| default           | 192.168.10.2              | ebgp              | S     | 64501    | established   | 0d:0h:27m:40s | ipv4-unicast | [1/1/1]                   |
-| default           | 192.168.20.2              | ebgp              | S     | 64502    | established   | 0d:0h:27m:40s | ipv4-unicast | [1/1/1]                   |
-| default           | 192:168:10::2             | ebgp              | S     | 64501    | established   | 0d:0h:27m:45s | ipv6-unicast | [1/1/1]                   |
-| default           | 192:168:20::2             | ebgp              | S     | 64502    | established   | 0d:0h:27m:45s | ipv6-unicast | [1/1/1]                   |
-+-------------------+---------------------------+-------------------+-------+----------+---------------+---------------+--------------+---------------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Summary:
-4 configured neighbors, 4 configured sessions are established, 0 disabled peers
-0 dynamic peers
+```bash
+BGP neighbor is 192.168.10.2, remote AS 64501, local AS 64500, external link
+  Local Role: undefined
+  Remote Role: undefined
+Hostname: sonic
+  BGP version 4, remote router ID 1.1.1.1, local router ID 3.3.3.3
+  BGP state = Established, up for 00:08:36
+<--snip-->
+BGP neighbor is 192.168.20.2, remote AS 64502, local AS 64500, external link
+  Local Role: undefined
+  Remote Role: undefined
+Hostname: sonic
+  BGP version 4, remote router ID 2.2.2.2, local router ID 3.3.3.3
+  BGP state = Established, up for 00:06:17
+<--snip-->
 ```
 
 The route table for the default network instance (VRF) should now show the system loopback IP of other nodes.
 
-```srl
-show network-instance default route-table all
+```bash
+show ip route
 ```
 
 Output on Leaf1:
 
-```srl
-A:leaf1# show network-instance default route-table all
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IPv4 unicast route table of network instance default
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-|          Prefix          |  ID   | Route Type |     Route Owner      |  Active  |  Origin  | Metric  |    Pref    |    Next-hop    |    Next-hop    |  Backup Next-  |   Backup Next-hop   |
-|                          |       |            |                      |          | Network  |         |            |     (Type)     |   Interface    |   hop (Type)   |      Interface      |
-|                          |       |            |                      |          | Instance |         |            |                |                |                |                     |
-+==========================+=======+============+======================+==========+==========+=========+============+================+================+================+=====================+
-| 1.1.1.1/32               | 5     | host       | net_inst_mgr         | True     | default  | 0       | 0          | None (extract) | None           |                |                     |
-| 2.2.2.2/32               | 0     | bgp        | bgp_mgr              | True     | default  | 0       | 170        | 192.168.10.2/3 | ethernet-1/1.0 |                |                     |
-|                          |       |            |                      |          |          |         |            | 1 (indirect/lo |                |                |                     |
-|                          |       |            |                      |          |          |         |            | cal)           |                |                |                     |
-| 192.168.10.2/31          | 1     | local      | net_inst_mgr         | True     | default  | 0       | 0          | 192.168.10.2   | ethernet-1/1.0 |                |                     |
-|                          |       |            |                      |          |          |         |            | (direct)       |                |                |                     |
-| 192.168.10.2/32          | 1     | host       | net_inst_mgr         | True     | default  | 0       | 0          | None (extract) | None           |                |                     |
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IPv4 routes total                    : 4
-IPv4 prefixes with active routes     : 4
-IPv4 prefixes with active ECMP routes: 0
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IPv6 unicast route table of network instance default
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-|          Prefix          |  ID   | Route Type |     Route Owner      |  Active  |  Origin  | Metric  |    Pref    |    Next-hop    |    Next-hop    |  Backup Next-  |   Backup Next-hop   |
-|                          |       |            |                      |          | Network  |         |            |     (Type)     |   Interface    |   hop (Type)   |      Interface      |
-|                          |       |            |                      |          | Instance |         |            |                |                |                |                     |
-+==========================+=======+============+======================+==========+==========+=========+============+================+================+================+=====================+
-| 192:168:10::2/127        | 1     | local      | net_inst_mgr         | True     | default  | 0       | 0          | 192:168:10::2  | ethernet-1/1.0 |                |                     |
-|                          |       |            |                      |          |          |         |            | (direct)       |                |                |                     |
-| 192:168:10::2/128        | 1     | host       | net_inst_mgr         | True     | default  | 0       | 0          | None (extract) | None           |                |                     |
-| 2001::1/128              | 5     | host       | net_inst_mgr         | True     | default  | 0       | 0          | None (extract) | None           |                |                     |
-| 2001::2/128              | 0     | bgp        | bgp_mgr              | True     | default  | 0       | 170        | 192:168:10::2/ | ethernet-1/1.0 |                |                     |
-|                          |       |            |                      |          |          |         |            | 127 (indirect/ |                |                |                     |
-|                          |       |            |                      |          |          |         |            | local)         |                |                |                     |
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IPv6 routes total                    : 4
-IPv6 prefixes with active routes     : 4
-IPv6 prefixes with active ECMP routes: 0
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```bash
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF default:
+K>* 0.0.0.0/0 [0/202] via 10.0.0.2, eth0, weight 1, 00:13:40
+B>* 1.1.1.1/32 [20/0] via 192.168.10.2, Ethernet0, rmapsrc 3.3.3.3, weight 1, 00:12:36
+B>* 2.2.2.2/32 [20/0] via 192.168.20.2, Ethernet4, rmapsrc 3.3.3.3, weight 1, 00:10:17
+C>* 3.3.3.3/32 is directly connected, Loopback0, weight 1, 00:13:39
+C>* 10.0.0.0/24 is directly connected, eth0, weight 1, 00:13:40
+B>* 10.80.1.0/24 [20/0] via 192.168.10.2, Ethernet0, rmapsrc 3.3.3.3, weight 1, 00:12:36
+B>* 10.90.1.0/24 [20/0] via 192.168.20.2, Ethernet4, rmapsrc 3.3.3.3, weight 1, 00:10:17
+C>* 192.168.10.2/31 is directly connected, Ethernet0, weight 1, 00:13:40
+C>* 192.168.20.2/31 is directly connected, Ethernet4, weight 1, 00:13:39
 ```
 
 Now we are ready to configure the overlay.
