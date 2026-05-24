@@ -102,48 +102,39 @@ sudo clab deploy -t sonic-evpn.clab.yml
 [Containerlab](https://containerlab.dev/) will deploy the lab and display a table with the list of nodes and their IPs.
 
 ```bash
-]# clab dep -t sonic-evpn.clab.yml 
-18:33:35 INFO Containerlab started version=0.75.0
-18:33:35 INFO Parsing & checking topology file=sonic-evpn.clab.yml
-18:33:35 INFO Creating docker network name=sonic-evpn-lab-mgmt IPv4 subnet=172.40.30.0/24 IPv6 subnet=2001:172:40:30::/64 MTU=0
-18:33:35 INFO Creating lab directory path=/root/nanog/clab-sonic-evpn
-18:33:35 INFO Creating container name=client2
-18:33:35 INFO Creating container name=client3
-18:33:35 INFO Creating container name=client1
-18:33:35 INFO Creating container name=spine
-18:33:35 INFO Creating container name=leaf2
-18:33:35 INFO Creating container name=leaf1
-18:33:35 INFO Creating container name=client4
-18:33:36 INFO Created link: leaf1:eth1 ▪┄┄▪ spine:eth1
-18:33:36 INFO Created link: leaf2:eth2 ▪┄┄▪ spine:eth2
-18:33:36 INFO Created link: client3:eth1 ▪┄┄▪ leaf2:eth10
-18:33:36 INFO Created link: client1:eth1 ▪┄┄▪ leaf1:eth10
-18:33:36 INFO Created link: client4:eth1 ▪┄┄▪ leaf2:eth11
-18:33:36 INFO Created link: client2:eth1 ▪┄┄▪ leaf1:eth11
-18:33:36 INFO Executed command node=client3 command="ip address add 172.16.10.60/24 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client3 command="ip -6 address add 172:16:10::60/64 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client3 command="ip route add 10.90.1.0/24 via 172.16.10.253" stdout=""
-18:33:36 INFO Executed command node=client3 command="ip route add 10.80.1.0/24 via 172.16.10.253" stdout=""
-18:33:36 INFO Executed command node=client3 command="ip -6 route add 10:90:1::/64 via 172:16:10::253" stdout=""
-18:33:36 INFO Executed command node=client3 command="ip -6 route add 10:80:1::/64 via 172:16:10::253" stdout=""
-18:33:36 INFO Executed command node=client4 command="ip address add 10.90.1.1/24 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client4 command="ip -6 address add 10:90:1::1/64 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client4 command="ip route add 10.80.1.0/24 via 10.90.1.2" stdout=""
-18:33:36 INFO Executed command node=client4 command="ip -6 route add 10:80:1::/64 via 10:90:1::2" stdout=""
-18:33:36 INFO Executed command node=client4 command="ip route add 172.16.10.0/24 via 10.90.1.2" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip address add 172.16.10.50/24 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip -6 address add 172:16:10::50/64 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip route add 10.90.1.0/24 via 172.16.10.254" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip route add 10.80.1.0/24 via 172.16.10.254" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip -6 route add 10:90:1::/64 via 172:16:10::254" stdout=""
-18:33:36 INFO Executed command node=client1 command="ip -6 route add 10:80:1::/64 via 172:16:10::254" stdout=""
-18:33:36 INFO Executed command node=client2 command="ip address add 10.80.1.1/24 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client2 command="ip -6 address add 10:80:1::1/64 dev eth1" stdout=""
-18:33:36 INFO Executed command node=client2 command="ip route add 10.90.1.0/24 via 10.80.1.2" stdout=""
-18:33:36 INFO Executed command node=client2 command="ip -6 route add 10:90:1::/64 via 10:80:1::2" stdout=""
-18:33:36 INFO Executed command node=client2 command="ip route add 172.16.10.0/24 via 10.80.1.2" stdout=""
-18:33:36 INFO Adding host entries path=/etc/hosts
-18:33:36 INFO Adding SSH config for nodes path=/etc/ssh/ssh_config.d/clab-sonic-evpn.conf
+# clab dep -t sonic-evpn.clab.yml --reconfigure
+18:36:47 INFO Containerlab started version=0.75.0
+18:36:47 INFO Parsing & checking topology file=sonic-evpn.clab.yml
+18:36:47 INFO Removing directory path=/root/nanog/clab-sonic-evpn
+18:36:47 INFO Creating docker network name=sonic-evpn-lab-mgmt IPv4 subnet=172.40.30.0/24 IPv6 subnet=2001:172:40:30::/64 MTU=0
+18:36:47 INFO Creating lab directory path=/root/nanog/clab-sonic-evpn
+18:36:47 INFO Creating container name=client2
+18:36:47 INFO Creating container name=leaf1
+18:36:47 INFO Creating container name=spine
+18:36:47 INFO Creating container name=client1
+18:36:47 INFO Creating container name=leaf2
+18:36:47 INFO Creating container name=client4
+18:36:47 INFO Creating container name=client3
+18:36:48 INFO Created link: leaf1:eth1 ▪┄┄▪ spine:eth1
+18:36:48 INFO Created link: leaf2:eth2 ▪┄┄▪ spine:eth2
+18:36:48 INFO Created link: client3:eth1 ▪┄┄▪ leaf2:eth10
+18:36:48 INFO Created link: client4:eth1 ▪┄┄▪ leaf2:eth11
+18:36:48 INFO Created link: client1:eth1 ▪┄┄▪ leaf1:eth10
+18:36:48 INFO Created link: client2:eth1 ▪┄┄▪ leaf1:eth11
+18:36:48 INFO Executed command node=client1 command="ip address add 172.16.10.50/24 dev eth1" stdout=""
+18:36:48 INFO Executed command node=client1 command="ip route add 10.90.1.0/24 via 172.16.10.254" stdout=""
+18:36:48 INFO Executed command node=client1 command="ip route add 10.80.1.0/24 via 172.16.10.254" stdout=""
+18:36:48 INFO Executed command node=client2 command="ip address add 10.80.1.1/24 dev eth1" stdout=""
+18:36:48 INFO Executed command node=client2 command="ip route add 10.90.1.0/24 via 10.80.1.2" stdout=""
+18:36:48 INFO Executed command node=client2 command="ip route add 172.16.10.0/24 via 10.80.1.2" stdout=""
+18:36:48 INFO Executed command node=client3 command="ip address add 172.16.10.60/24 dev eth1" stdout=""
+18:36:48 INFO Executed command node=client3 command="ip route add 10.90.1.0/24 via 172.16.10.253" stdout=""
+18:36:48 INFO Executed command node=client3 command="ip route add 10.80.1.0/24 via 172.16.10.253" stdout=""
+18:36:48 INFO Executed command node=client4 command="ip address add 10.90.1.1/24 dev eth1" stdout=""
+18:36:48 INFO Executed command node=client4 command="ip route add 10.80.1.0/24 via 10.90.1.2" stdout=""
+18:36:48 INFO Executed command node=client4 command="ip route add 172.16.10.0/24 via 10.90.1.2" stdout=""
+18:36:48 INFO Adding host entries path=/etc/hosts
+18:36:48 INFO Adding SSH config for nodes path=/etc/ssh/ssh_config.d/clab-sonic-evpn.conf
 ╭─────────┬─────────────────────────────────────────────┬────────────────────┬────────────────────╮
 │   Name  │                  Kind/Image                 │        State       │   IPv4/6 Address   │
 ├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
