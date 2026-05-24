@@ -102,72 +102,72 @@ sudo clab deploy -t sonic-evpn.clab.yml
 [Containerlab](https://containerlab.dev/) will deploy the lab and display a table with the list of nodes and their IPs.
 
 ```bash
-user@1:~/N92-evpn/n92-evpn-lab$ sudo clab deploy -t srl-evpn.clab.yml
-14:28:42 INFO Containerlab started version=0.68.0
-14:28:42 INFO Parsing & checking topology file=srl-evpn.clab.yml
-14:28:42 INFO Creating docker network name=srl-evpn-lab-mgmt IPv4 subnet=172.20.20.0/24 IPv6 subnet=2001:172:20:20::/64 MTU=0
-14:28:42 INFO Pulling ghcr.io/srl-labs/alpine:latest Docker image
-14:28:45 INFO Done pulling ghcr.io/srl-labs/alpine:latest
-14:28:45 INFO Pulling ghcr.io/nokia/srlinux:25.3.2 Docker image
-14:29:05 INFO Done pulling ghcr.io/nokia/srlinux:25.3.2
-14:29:05 INFO Creating lab directory path=/home/nokiauser/N92-evpn/n92-evpn-lab/clab-srl-evpn
-14:29:05 INFO Creating container name=client3
-14:29:05 INFO Creating container name=client4
-14:29:05 INFO Creating container name=client1
-14:29:05 INFO Creating container name=client2
-14:29:05 INFO Creating container name=leaf2
-14:29:05 INFO Creating container name=leaf1
-14:29:05 INFO Creating container name=spine
-14:29:28 INFO Created link: client1:eth1 ▪┄┄▪ leaf1:e1-10
-14:29:28 INFO Created link: client2:eth1 ▪┄┄▪ leaf1:e1-11
-14:29:28 INFO Running postdeploy actions kind=nokia_srlinux node=leaf1
-14:29:28 INFO Created link: leaf1:e1-1 ▪┄┄▪ spine:e1-1
-14:29:28 INFO Created link: client3:eth1 ▪┄┄▪ leaf2:e1-10
-14:29:28 INFO Created link: leaf2:e1-2 ▪┄┄▪ spine:e1-2
-14:29:28 INFO Running postdeploy actions kind=nokia_srlinux node=spine
-14:29:28 INFO Created link: client4:eth1 ▪┄┄▪ leaf2:e1-11
-14:29:28 INFO Running postdeploy actions kind=nokia_srlinux node=leaf2
-14:29:46 INFO Executed command node=client1 command="ip address add 172.16.10.50/24 dev eth1" stdout=""
-14:29:46 INFO Executed command node=client1 command="ip -6 address add 172:16:10::50/64 dev eth1" stdout=""
-14:29:46 INFO Executed command node=client1 command="ip route add 10.90.1.0/24 via 172.16.10.254" stdout=""
-14:29:46 INFO Executed command node=client1 command="ip route add 10.80.1.0/24 via 172.16.10.254" stdout=""
-14:29:46 INFO Executed command node=client1 command="ip -6 route add 10:90:1::/64 via 172:16:10::254" stdout=""
-14:29:46 INFO Executed command node=client1 command="ip -6 route add 10:80:1::/64 via 172:16:10::254" stdout=""
-14:29:46 INFO Executed command node=client2 command=/root/restart-services.sh stdout=""
-14:29:46 INFO Executed command node=client2 command="ip route add 172.16.10.0/24 via 10.80.1.2" stdout=""
-14:29:46 INFO Executed command node=client2 command="ip -6 route add 10:90:1::/64 via 10:80:1::2" stdout=""
-14:29:46 INFO Executed command node=client4 command=/root/restart-services.sh stdout=""
-14:29:46 INFO Executed command node=client4 command="ip route add 172.16.10.0/24 via 10.90.1.2" stdout=""
-14:29:46 INFO Executed command node=client4 command="ip -6 route add 10:80:1::/64 via 10:90:1::2" stdout=""
-14:29:46 INFO Executed command node=client3 command=/root/restart-services.sh stdout=""
-14:29:46 INFO Executed command node=client3 command="ip -6 route add 10:90:1::/64 via 172:16:10::253" stdout=""
-14:29:46 INFO Executed command node=client3 command="ip -6 route add 10:80:1::/64 via 172:16:10::253" stdout=""
-14:29:46 INFO Adding host entries path=/etc/hosts
-14:29:46 INFO Adding SSH config for nodes path=/etc/ssh/ssh_config.d/clab-srl-evpn.conf
-╭─────────┬──────────────────────────────┬─────────┬────────────────────╮
-│   Name  │          Kind/Image          │  State  │   IPv4/6 Address   │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ client1 │ linux                        │ running │ 172.20.20.10       │
-│         │ ghcr.io/srl-labs/alpine      │         │ 2001:172:20:20::10 │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ client2 │ linux                        │ running │ 172.20.20.11       │
-│         │ ghcr.io/srl-labs/alpine      │         │ 2001:172:20:20::11 │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ client3 │ linux                        │ running │ 172.20.20.12       │
-│         │ ghcr.io/srl-labs/alpine      │         │ 2001:172:20:20::12 │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ client4 │ linux                        │ running │ 172.20.20.13       │
-│         │ ghcr.io/srl-labs/alpine      │         │ 2001:172:20:20::13 │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ leaf1   │ nokia_srlinux                │ running │ 172.20.20.2        │
-│         │ ghcr.io/nokia/srlinux:25.3.2 │         │ 2001:172:20:20::2  │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ leaf2   │ nokia_srlinux                │ running │ 172.20.20.4        │
-│         │ ghcr.io/nokia/srlinux:25.3.2 │         │ 2001:172:20:20::4  │
-├─────────┼──────────────────────────────┼─────────┼────────────────────┤
-│ spine   │ nokia_srlinux                │ running │ 172.20.20.3        │
-│         │ ghcr.io/nokia/srlinux:25.3.2 │         │ 2001:172:20:20::3  │
-╰─────────┴──────────────────────────────┴─────────┴────────────────────╯
+]# clab dep -t sonic-evpn.clab.yml 
+18:33:35 INFO Containerlab started version=0.75.0
+18:33:35 INFO Parsing & checking topology file=sonic-evpn.clab.yml
+18:33:35 INFO Creating docker network name=sonic-evpn-lab-mgmt IPv4 subnet=172.40.30.0/24 IPv6 subnet=2001:172:40:30::/64 MTU=0
+18:33:35 INFO Creating lab directory path=/root/nanog/clab-sonic-evpn
+18:33:35 INFO Creating container name=client2
+18:33:35 INFO Creating container name=client3
+18:33:35 INFO Creating container name=client1
+18:33:35 INFO Creating container name=spine
+18:33:35 INFO Creating container name=leaf2
+18:33:35 INFO Creating container name=leaf1
+18:33:35 INFO Creating container name=client4
+18:33:36 INFO Created link: leaf1:eth1 ▪┄┄▪ spine:eth1
+18:33:36 INFO Created link: leaf2:eth2 ▪┄┄▪ spine:eth2
+18:33:36 INFO Created link: client3:eth1 ▪┄┄▪ leaf2:eth10
+18:33:36 INFO Created link: client1:eth1 ▪┄┄▪ leaf1:eth10
+18:33:36 INFO Created link: client4:eth1 ▪┄┄▪ leaf2:eth11
+18:33:36 INFO Created link: client2:eth1 ▪┄┄▪ leaf1:eth11
+18:33:36 INFO Executed command node=client3 command="ip address add 172.16.10.60/24 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client3 command="ip -6 address add 172:16:10::60/64 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client3 command="ip route add 10.90.1.0/24 via 172.16.10.253" stdout=""
+18:33:36 INFO Executed command node=client3 command="ip route add 10.80.1.0/24 via 172.16.10.253" stdout=""
+18:33:36 INFO Executed command node=client3 command="ip -6 route add 10:90:1::/64 via 172:16:10::253" stdout=""
+18:33:36 INFO Executed command node=client3 command="ip -6 route add 10:80:1::/64 via 172:16:10::253" stdout=""
+18:33:36 INFO Executed command node=client4 command="ip address add 10.90.1.1/24 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client4 command="ip -6 address add 10:90:1::1/64 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client4 command="ip route add 10.80.1.0/24 via 10.90.1.2" stdout=""
+18:33:36 INFO Executed command node=client4 command="ip -6 route add 10:80:1::/64 via 10:90:1::2" stdout=""
+18:33:36 INFO Executed command node=client4 command="ip route add 172.16.10.0/24 via 10.90.1.2" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip address add 172.16.10.50/24 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip -6 address add 172:16:10::50/64 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip route add 10.90.1.0/24 via 172.16.10.254" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip route add 10.80.1.0/24 via 172.16.10.254" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip -6 route add 10:90:1::/64 via 172:16:10::254" stdout=""
+18:33:36 INFO Executed command node=client1 command="ip -6 route add 10:80:1::/64 via 172:16:10::254" stdout=""
+18:33:36 INFO Executed command node=client2 command="ip address add 10.80.1.1/24 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client2 command="ip -6 address add 10:80:1::1/64 dev eth1" stdout=""
+18:33:36 INFO Executed command node=client2 command="ip route add 10.90.1.0/24 via 10.80.1.2" stdout=""
+18:33:36 INFO Executed command node=client2 command="ip -6 route add 10:90:1::/64 via 10:80:1::2" stdout=""
+18:33:36 INFO Executed command node=client2 command="ip route add 172.16.10.0/24 via 10.80.1.2" stdout=""
+18:33:36 INFO Adding host entries path=/etc/hosts
+18:33:36 INFO Adding SSH config for nodes path=/etc/ssh/ssh_config.d/clab-sonic-evpn.conf
+╭─────────┬─────────────────────────────────────────────┬────────────────────┬────────────────────╮
+│   Name  │                  Kind/Image                 │        State       │   IPv4/6 Address   │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ client1 │ linux                                       │ running            │ 172.40.30.10       │
+│         │ ghcr.io/mfzhsn/network-multitool-sshd:0.0.5 │                    │ 2001:172:40:30::10 │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ client2 │ linux                                       │ running            │ 172.40.30.11       │
+│         │ ghcr.io/mfzhsn/network-multitool-sshd:0.0.5 │                    │ 2001:172:40:30::11 │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ client3 │ linux                                       │ running            │ 172.40.30.12       │
+│         │ ghcr.io/mfzhsn/network-multitool-sshd:0.0.5 │                    │ 2001:172:40:30::12 │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ client4 │ linux                                       │ running            │ 172.40.30.13       │
+│         │ ghcr.io/mfzhsn/network-multitool-sshd:0.0.5 │                    │ 2001:172:40:30::13 │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ leaf1   │ sonic-vm                                    │ running            │ 172.40.30.2        │
+│         │ vrnetlab/sonic_sonic-vs:2511                │ (health: starting) │ 2001:172:40:30::2  │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ leaf2   │ sonic-vm                                    │ running            │ 172.40.30.4        │
+│         │ vrnetlab/sonic_sonic-vs:2511                │ (health: starting) │ 2001:172:40:30::4  │
+├─────────┼─────────────────────────────────────────────┼────────────────────┼────────────────────┤
+│ spine   │ sonic-vm                                    │ running            │ 172.40.30.3        │
+│         │ vrnetlab/sonic_sonic-vs:2511                │ (health: starting) │ 2001:172:40:30::3  │
+╰─────────┴─────────────────────────────────────────────┴────────────────────┴────────────────────╯
 ```
 
 To display all deployed labs on your VM at any time, use:
