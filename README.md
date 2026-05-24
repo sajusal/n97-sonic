@@ -391,6 +391,8 @@ router bgp 64501
  address-family l2vpn evpn
   neighbor 3.3.3.3 activate
  exit-address-family
+address-family ipv4 unicast
+  no neighbor 3.3.3.3 activate
  !
 exit
 !
@@ -407,6 +409,8 @@ router bgp 64502
  address-family l2vpn evpn
   neighbor 3.3.3.3 activate
  exit-address-family
+address-family ipv4 unicast
+  no neighbor 3.3.3.3 activate
  !
 exit
 !
@@ -427,6 +431,10 @@ router bgp 64500
   neighbor 1.1.1.1 activate
   neighbor 2.2.2.2 activate
  exit-address-family
+address-family ipv4 unicast
+  no neighbor 1.1.1.1 activate
+address-family ipv4 unicast
+  no neighbor 2.2.2.2 activate
  !
 exit
 !
@@ -437,7 +445,7 @@ exit
 The BGP overlay sessions should be UP now. Check using the following command on Leaf1.
 
 ```bash
-show bgp neighbors 2.2.2.2
+show bgp neighbors 3.3.3.3
 ```
 
 The output confirms that EVPN neighbor sessions are established to Loopback0 IP.
@@ -445,15 +453,15 @@ The output confirms that EVPN neighbor sessions are established to Loopback0 IP.
 The devices are not currently advertising any EVPN routes.
 
 ```bash
-BGP neighbor is 2.2.2.2, remote AS 64502, local AS 64501, external link
+BGP neighbor is 3.3.3.3, remote AS 64500, local AS 64501, external link
   Local Role: undefined
   Remote Role: undefined
-Hostname: sonic
-  BGP version 4, remote router ID 2.2.2.2, local router ID 1.1.1.1
-  BGP state = Established, up for 00:00:13
+Hostname: spine
+  BGP version 4, remote router ID 3.3.3.3, local router ID 1.1.1.1
+  BGP state = Established, up for 00:01:35
 <--snip-->
  For address family: L2VPN EVPN
-  Update group 2, subgroup 3
+  Update group 6, subgroup 8
   Packet Queue length 0
   NEXT_HOP is propagated unchanged to this neighbor
   Community attribute sent to this neighbor(all)
