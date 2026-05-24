@@ -384,15 +384,12 @@ BGP Overlay configuration on Leaf1:
 
 ```bash
 router bgp 64501
- neighbor 2.2.2.2 remote-as 64502
- neighbor 2.2.2.2 update-source Loopback0
- neighbor 2.2.2.2 ebgp-multihop 2
+ neighbor 3.3.3.3 remote-as 64500
+ neighbor 3.3.3.3 update-source Loopback0
+ neighbor 3.3.3.3 ebgp-multihop 2
  !
  address-family l2vpn evpn
-  neighbor 2.2.2.2 activate
- exit-address-family
- address-family ipv4 unicast
-  no neighbor 2.2.2.2 activate
+  neighbor 3.3.3.3 activate
  exit-address-family
  !
 exit
@@ -403,15 +400,32 @@ BGP Overlay configuration on Leaf2:
 
 ```bash
 router bgp 64502
+ neighbor 3.3.3.3 remote-as 64500
+ neighbor 3.3.3.3 update-source Loopback0
+ neighbor 3.3.3.3 ebgp-multihop 2
+ !
+ address-family l2vpn evpn
+  neighbor 3.3.3.3 activate
+ exit-address-family
+ !
+exit
+!
+```
+
+BGP Overlay configuration on Spine:
+
+```bash
+router bgp 64500
  neighbor 1.1.1.1 remote-as 64501
  neighbor 1.1.1.1 update-source Loopback0
  neighbor 1.1.1.1 ebgp-multihop 2
+ neighbor 2.2.2.2 remote-as 64502
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 2.2.2.2 ebgp-multihop 2
  !
  address-family l2vpn evpn
   neighbor 1.1.1.1 activate
- exit-address-family
- address-family ipv4 unicast
-  no neighbor 1.1.1.1 activate
+  neighbor 2.2.2.2 activate
  exit-address-family
  !
 exit
