@@ -59,6 +59,8 @@ All 4 clients will be running [Alpine Linux](https://alpinelinux.org/)
 
 ## Installing Containerlab
 
+To learn more about Containerlab, refer to [Nanog 93 Containerlab Workshop](https://github.com/srlinuxamericas/n93-clab)
+
 Install Containerlab on your VM.
 
 ```bash
@@ -767,7 +769,7 @@ Displayed 4 prefixes (4 paths) (of requested type)
 
 Containerlab provides the ability to do a packet capture and re-direct the captured packets to Wireshark.
 
-Visit [AC2 Workshop page](https://github.com/srlinuxamericas/ac2-clab/tree/main/40-packet-capture) to learn more.
+Visit [Nanog 93 Workshop page](https://github.com/srlinuxamericas/n93-clab/tree/main/40-packet-capture) to learn more.
 
 ## Configure Layer 3 EVPN-VXLAN
 
