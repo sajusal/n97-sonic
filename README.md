@@ -69,6 +69,43 @@ curl -sL https://containerlab.dev/setup | sudo -E bash -s "all"
 
 Logout and login for the sudo privileges to take effect.
 
+## Converting SONiC qcow2 to docker image for Containerlab
+
+**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+
+VM nodes integration in containerlab is based on the [hellt/vrnetlab](https://github.com/hellt/vrnetlab) project which is a fork of `vrnetlab/vrnetlab` where things were added to make it work with the container networking.
+
+Start with cloning the project:
+
+```bash
+cd ~ && git clone https://github.com/hellt/vrnetlab.git && \
+cd ~/vrnetlab
+```
+
+### Building SONiC container image
+
+**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+
+SONiC vs image (downloaded from [sonic.software](https://sonic.software/)) should be copied to the `~/vrnetlab/sonic/` directory before building the container image.
+
+```bash
+cp ~/images/sonic-vs-202405.qcow2 ~/vrnetlab/sonic/
+```
+
+Once copied, we can change to `~/vrnetlab/sonic` image and build the container image:
+
+```bash
+cd ~/vrnetlab/sonic && make
+```
+
+The resulting image will be tagged as `vrnetlab/sonic_sonic-vs:202405`. This can be verified using `docker images` command.
+
+```bash
+REPOSITORY                TAG       IMAGE ID       CREATED          SIZE
+vrnetlab/sonic_sonic-vs   202405    33b73b1dadc4   5 minutes ago    6.37GB
+hello-world               latest    d2c94e258dcb   18 months ago    13.3kB
+```
+
 ## Importing SONiC docker image
 
 SONiC docker image (made using [vrnetlab](https://github.com/srl-labs/vrnetlab/tree/master) is available on your VM.
@@ -1043,15 +1080,6 @@ B>* 10.90.1.0/24 [20/0] via 2.2.2.2, Vlan999 onlink, weight 1, 00:20:27
 B>* 10.90.1.1/32 [20/0] via 2.2.2.2, Vlan999 onlink, weight 1, 00:08:46
 ```
 
-## Useful links
+### End of Workshop
 
-* [Network Developer Portal](https://network.developer.nokia.com/)
-* [containerlab](https://containerlab.dev/)
-* [gNMIc](https://gnmic.openconfig.net/)
 
-### SR Linux
-* [SR Linux documentation](https://documentation.nokia.com/srlinux/)
-* [Learn SR Linux](https://learn.srlinux.dev/)
-* [YANG Browser](https://yang.srlinux.dev/)
-* [gNxI Browser](https://gnxi.srlinux.dev/)
-* [Ansible Collection](https://learn.srlinux.dev/ansible/collection/)
