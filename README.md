@@ -273,7 +273,6 @@ Interface    Master     IPv4 address/mask    Admin/Oper    BGP Neighbor    Neigh
 -----------  ---------  -------------------  ------------  --------------  -------------
 Ethernet0               192.168.10.2/31      up/up         N/A             N/A
 Loopback0               1.1.1.1/32           up/up         N/A             N/A
-Vlan200      Vrf_Type5  10.80.1.254/24       up/up         N/A             N/A
 docker0                 240.127.1.1/24       up/down       N/A             N/A
 eth0                    10.0.0.15/24         up/up         N/A             N/A
 lo                      127.0.0.1/16         up/up         N/A             N/A
