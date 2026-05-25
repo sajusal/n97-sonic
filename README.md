@@ -894,6 +894,31 @@ sudo config vrf add_vrf_vni_map Vrf_Type5 10999
 sudo config save -y
 ```
 
+### Ping between Client 2 & 4
+
+Login to client2 using:
+
+```bash
+sudo docker exec -it client2 sh
+```
+
+Ping Client4 IP from Client2:
+
+```bash
+ping -c 1 10.90.1.1
+```
+
+Expected output:
+
+```bash
+PING 10.90.1.1 (10.90.1.1): 56 data bytes
+64 bytes from 10.90.1.1: seq=0 ttl=253 time=2.208 ms
+
+--- 10.90.1.1 ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 2.208/2.208/2.208 ms
+```
+
 ### VLAN and VXLAN Verification
 
 All commands executed **Using SONiC CLI** on Leaf1.
@@ -963,109 +988,53 @@ show bgp l2vpn evpn route type 5
 
 Output on Leaf1:
 
-```srl
-A:leaf1# show network-instance default protocols bgp routes evpn route-type summary
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Show report for the BGP route table of network-instance "default"
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Status codes: u=used, *=valid, >=best, x=stale
-Origin codes: i=IGP, e=EGP, ?=incomplete
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Type 5 IP Prefix Routes
-+--------+----------------------------+------------+---------------------+----------------------------+----------------------------+----------------------------+----------------------------+
-| Status |    Route-distinguisher     |   Tag-ID   |     IP-address      |          neighbor          |          Next-Hop          |           Label            |          Gateway           |
-+========+============================+============+=====================+============================+============================+============================+============================+
-| u*>    | 2.2.2.2:200                | 0          | 10.90.1.0/24        | 2.2.2.2                    | 2.2.2.2                    | 200                        | 0.0.0.0                    |
-| *      | 2.2.2.2:200                | 0          | 10.90.1.0/24        | 2001::2                    | 2.2.2.2                    | 200                        | 0.0.0.0                    |
-| u*>    | 2.2.2.2:200                | 0          | 10:90:1::/64        | 2.2.2.2                    | 2.2.2.2                    | 200                        | ::                         |
-| *      | 2.2.2.2:200                | 0          | 10:90:1::/64        | 2001::2                    | 2.2.2.2                    | 200                        | ::                         |
-+--------+----------------------------+------------+---------------------+----------------------------+----------------------------+----------------------------+----------------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```bash
+BGP table version is 1, local router ID is 1.1.1.1
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal
+Origin codes: i - IGP, e - EGP, ? - incomplete
+EVPN type-1 prefix: [1]:[EthTag]:[ESI]:[IPlen]:[VTEP-IP]:[Frag-id]
+EVPN type-2 prefix: [2]:[EthTag]:[MAClen]:[MAC]:[IPlen]:[IP]
+EVPN type-3 prefix: [3]:[EthTag]:[IPlen]:[OrigIP]
+EVPN type-4 prefix: [4]:[ESI]:[IPlen]:[OrigIP]
+EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]
+
+   Network          Next Hop            Metric LocPrf Weight Path
+                    Extended Community
+Route Distinguisher: 1.1.1.1:10999
+ *>  [5]:[0]:[24]:[10.80.1.0]
+                    1.1.1.1                  0         32768 i
+                    ET:8 RT:64999:10999 Rmac:22:5f:72:50:68:89
+Route Distinguisher: 2.2.2.2:10999
+ *>  [5]:[0]:[24]:[10.90.1.0]
+                    2.2.2.2                                0 64500 64502 i
+                    RT:64999:10999 ET:8 Rmac:22:88:ca:b9:b3:da
+
+Displayed 2 prefixes (2 paths) (of requested type)
 ```
 
 The remote routes will also be installed on the Leaf's route table.
 
 Verify the VRF route table on Leaf1 using the below command:
 
-```srl
-show network-instance ip-vrf-1 route-table ipv4-unicast summary
+```bash
+show ip route vrf Vrf_Type5
 ```
 
 Output on Leaf1:
 
-```srl
-A:leaf1# show network-instance ip-vrf-1 route-table ipv4-unicast summary
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IPv4 unicast route table of network instance ip-vrf-1
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-|          Prefix          |  ID   | Route Type |     Route Owner      |  Active  |  Origin  | Metric  |    Pref    |    Next-hop    |    Next-hop    |  Backup Next-  |   Backup Next-hop   |
-|                          |       |            |                      |          | Network  |         |            |     (Type)     |   Interface    |   hop (Type)   |      Interface      |
-|                          |       |            |                      |          | Instance |         |            |                |                |                |                     |
-+==========================+=======+============+======================+==========+==========+=========+============+================+================+================+=====================+
-| 10.80.1.0/24             | 3     | local      | net_inst_mgr         | True     | ip-vrf-1 | 0       | 0          | 10.80.1.2      | ethernet-      |                |                     |
-|                          |       |            |                      |          |          |         |            | (direct)       | 1/11.0         |                |                     |
-| 10.80.1.2/32             | 3     | host       | net_inst_mgr         | True     | ip-vrf-1 | 0       | 0          | None (extract) | None           |                |                     |
-| 10.80.1.255/32           | 3     | host       | net_inst_mgr         | True     | ip-vrf-1 | 0       | 0          | None           |                |                |                     |
-|                          |       |            |                      |          |          |         |            | (broadcast)    |                |                |                     |
-| 10.90.1.0/24             | 0     | bgp-evpn   | bgp_evpn_mgr         | True     | ip-vrf-1 | 0       | 170        | 2.2.2.2/32 (in |                |                |                     |
-|                          |       |            |                      |          |          |         |            | direct/vxlan)  |                |                |                     |
-+--------------------------+-------+------------+----------------------+----------+----------+---------+------------+----------------+----------------+----------------+---------------------+
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-```
-
-### Ping between Client 2 & 4
-
-Login to client2 using:
-
 ```bash
-sudo docker exec -it client2 sh
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF Vrf_Type5:
+C>* 10.80.1.0/24 is directly connected, Vlan200, weight 1, 00:33:50
+B>* 10.90.1.0/24 [20/0] via 2.2.2.2, Vlan999 onlink, weight 1, 00:20:27
+B>* 10.90.1.1/32 [20/0] via 2.2.2.2, Vlan999 onlink, weight 1, 00:08:46
 ```
-
-Ping Client4 IP from Client2:
-
-```bash
-ping -c 1 10.90.1.1
-```
-
-Expected output:
-
-```bash
-PING 10.90.1.1 (10.90.1.1): 56 data bytes
-64 bytes from 10.90.1.1: seq=0 ttl=253 time=2.208 ms
-
---- 10.90.1.1 ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max = 2.208/2.208/2.208 ms
-```
-
-Let's understand how this ping worked.
-
-On Client2, there is a static route defined for destination 10.90.1.0/24 with Leaf1 as next-hop. This can be verified using `ip r` command on the Client.
-
-```bash
-/ # ip r
-default via 172.20.20.1 dev eth0
-10.80.1.0/24 dev eth1 scope link  src 10.80.1.1
-10.90.1.0/24 via 10.80.1.2 dev eth1
-172.20.20.0/24 dev eth0 scope link  src 172.20.20.4
-```
-
-When the ICMP ping packet reaches Leaf1, it checks the destination IP (10.90.1.1) against it's route-table. As seen in the above route-table output, the next-hop for this destination is a VXLAN tunnel to 2.2.2.2 (Leaf2) with VNI 200.
-
-The ICMP packet is encapsulated in VXLAN and sent to 2.2.2.2 (Leaf2). On Leaf2, the VXLAN encapsulation is removed and the ICMP packet is forwarded to the Client. The ping reponse follows similar path back to Leaf1.
-
-## Explore this lab with everything pre-configured
-
-If you would like to explore all of the above without doing any manual configurations, we got you covered !
-
-Go to [Complete startup config](n92-evpn-lab/configs/fabric/startup-complete) to see the full configuration for each device.
-
-In your topology file (srl-evpn.clab.yml), point the startup config file location to `configs/fabric/startup-complete/leaf1-startup-complete.cfg` (for Leaf1).
-
-Destroy any existing lab using the command `sudo clab destroy -t srl-evpn.clab.yml --cleanup`.
-
-Then deploy the lab using `sudo clab deploy -t srl-evpn.clab.yml`.
 
 ## Useful links
 
