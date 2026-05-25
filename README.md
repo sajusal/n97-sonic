@@ -772,98 +772,193 @@ The objective is to connect Client 2 and Client 4 over a Layer 3 EVPN.
 
 ![image](images/l3-evpn.png)
 
-### Configure Client Interface
+### Configure MAC-VRF and Client interface
 
 Client2 & 4 are Layer 3 clients with IPs in different subnets.
 
 Client Layer 3 interface configuration on Leaf1:
 
-```srl
-set / interface ethernet-1/11 description To-Client2
-set / interface ethernet-1/11 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv4 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv4 address 10.80.1.2/24
-set / interface ethernet-1/11 subinterface 0 ipv6 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv6 address 10:80:1::2/64
+Using **SONiC CLI**:
+
+```bash
+sudo config vlan add 200
+sudo config interface startup Ethernet40
+sudo config vlan member add -u 200 Ethernet40
+sudo config interface ip add Vlan200 10.80.1.254/24
 ```
 
 Client Layer 3 interface configuration on Leaf2:
 
-```srl
-set / interface ethernet-1/11 description To-Client4
-set / interface ethernet-1/11 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv4 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv4 address 10.90.1.2/24
-set / interface ethernet-1/11 subinterface 0 ipv6 admin-state enable
-set / interface ethernet-1/11 subinterface 0 ipv6 address 10:90:1::2/64
+Using **SONiC CLI**:
+
+```bash
+sudo config vlan add 240
+sudo config interface startup Ethernet40
+sudo config vlan member add -u 240 Ethernet40
+sudo config interface ip add Vlan240 10.90.1.254/24
 ```
 
 IP addresses on the client side are pre-configured during deployment. This can be verified by logging in to the Client shell and running `ip a`.
 
 ### Configuring VXLAN
 
-We will create a Layer 3 VXLAN tunnel between Leaf1 and Leaf2 with a unique VNI.
+VXLAN tunnels were configured as part of Layer 2 section.
 
-Configuring VXLAN on Leaf1:
+### Configuring VRF in BGP
 
-```srl
-set / tunnel-interface vxlan24 vxlan-interface 200 type routed
-set / tunnel-interface vxlan24 vxlan-interface 200 ingress vni 200
+VRF configuration on Leaf1:
+
+Using **FRR CLI**:
+
+```bash
+vrf Vrf_Type5
+ ip router-id 1.1.1.1
+ vni 10999
+ ip nht resolve-via-default
+ ipv6 nht resolve-via-default
+exit-vrf
+router bgp 64501 vrf Vrf_Type5
+ no bgp ebgp-requires-policy
+
+ address-family ipv4 unicast
+  network 10.80.1.0/24
+ exit-address-family
+
+ address-family l2vpn evpn
+  advertise ipv4 unicast
+  rd 1.1.1.1:10999
+  route-target import 64999:10999
+  route-target export 64999:10999
+ exit-address-family
+exit
 ```
 
-Configuring VXLAN on Leaf2:
+VRF configuration on Leaf2:
 
-```srl
-set / tunnel-interface vxlan24 vxlan-interface 200 type routed
-set / tunnel-interface vxlan24 vxlan-interface 200 ingress vni 200
+Using **FRR CLI**:
+
+```bash
+vrf Vrf_Type5
+ ip router-id 2.2.2.2
+ vni 10999
+ ip nht resolve-via-default
+ ipv6 nht resolve-via-default
+exit-vrf
+router bgp 64502 vrf Vrf_Type5
+ no bgp ebgp-requires-policy
+
+ address-family ipv4 unicast
+  network 10.90.1.0/24
+ exit-address-family
+
+ address-family l2vpn evpn
+  advertise ipv4 unicast
+  rd 2.2.2.2:10999
+  route-target import 64999:10999
+  route-target export 64999:10999
+ exit-address-family
+exit
 ```
 
 ### Configuring Layer 3 EVPN-VXLAN
 
-Layer 3 instance on SR Linux is called IP-VRF. To learn more about SR Linux Network Instances, visit [SR Linux Documentation](https://documentation.nokia.com/srlinux/24-7/books/config-basics/network-instances.html)
-
-We will create an ip-vrf and include the client facing interface and the vxlan tunnel in this instance.
-
-RD & RT will be separate from the Layer2 instance.
+We will include the client facing interface and the vxlan tunnel in this instance.
 
 EVPN-VXLAN configuration on Leaf1:
 
-```srl
-set / network-instance ip-vrf-1 type ip-vrf
-set / network-instance ip-vrf-1 admin-state enable
-set / network-instance ip-vrf-1 interface ethernet-1/11.0
-set / network-instance ip-vrf-1 vxlan-interface vxlan24.200
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 encapsulation-type vxlan
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 vxlan-interface vxlan24.200
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 evi 200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-distinguisher rd 1.1.1.1:200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-target export-rt target:65500:200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-target import-rt target:65500:200
+Using **SONiC CLI**:
+
+```bash
+sudo config vrf add Vrf_Type5
+sudo config interface vrf bind Vlan200 Vrf_Type5
+sudo config vlan add 999
+sudo config interface vrf bind Vlan999 Vrf_Type5
+sudo config vxlan map add vtep 200 10200
+sudo config vxlan map add vtep 999 10999
+sudo config vrf add_vrf_vni_map Vrf_Type5 10999
+sudo config save -y
 ```
 
 EVPN-VXLAN configuration on Leaf2:
 
-```srl
-set / network-instance ip-vrf-1 type ip-vrf
-set / network-instance ip-vrf-1 admin-state enable
-set / network-instance ip-vrf-1 interface ethernet-1/11.0
-set / network-instance ip-vrf-1 vxlan-interface vxlan24.200
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 encapsulation-type vxlan
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 vxlan-interface vxlan24.200
-set / network-instance ip-vrf-1 protocols bgp-evpn bgp-instance 1 evi 200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-distinguisher rd 2.2.2.2:200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-target export-rt target:65500:200
-set / network-instance ip-vrf-1 protocols bgp-vpn bgp-instance 1 route-target import-rt target:65500:200
+Using **SONiC CLI**:
+
+```bash
+sudo config vrf add Vrf_Type5
+sudo config interface vrf bind Vlan240 Vrf_Type5
+sudo config vlan add 999
+sudo config interface vrf bind Vlan999 Vrf_Type5
+sudo config vxlan map add vtep 240 10240
+sudo config vxlan map add vtep 999 10999
+sudo config vrf add_vrf_vni_map Vrf_Type5 10999
+sudo config save -y
+```
+
+### VLAN and VXLAN Verification
+
+All commands executed **Using SONiC CLI** on Leaf1.
+
+```bash
+show vlan brief
+```
+
+Expected output:
+
+```bash
++-----------+----------------+------------+----------------+-------------+-----------------------+
+|   VLAN ID | IP Address     | Ports      | Port Tagging   | Proxy ARP   | DHCP Helper Address   |
++===========+================+============+================+=============+=======================+
+|       110 |                | Ethernet36 | untagged       | disabled    |                       |
++-----------+----------------+------------+----------------+-------------+-----------------------+
+|       200 | 10.80.1.254/24 | Ethernet40 | untagged       | disabled    |                       |
++-----------+----------------+------------+----------------+-------------+-----------------------+
+|       999 |                |            |                | disabled    |                       |
++-----------+----------------+------------+----------------+-------------+-----------------------+
+```
+
+```bash
+show ip interfaces
+```
+
+Expected output:
+
+```bash
+Interface    Master     IPv4 address/mask    Admin/Oper    BGP Neighbor    Neighbor IP
+-----------  ---------  -------------------  ------------  --------------  -------------
+Ethernet0               192.168.10.2/31      up/up         N/A             N/A
+Loopback0               1.1.1.1/32           up/up         N/A             N/A
+Vlan200      Vrf_Type5  10.80.1.254/24       up/up         N/A             N/A
+docker0                 240.127.1.1/24       up/down       N/A             N/A
+eth0                    10.0.0.15/24         up/up         N/A             N/A
+lo                      127.0.0.1/16         up/up         N/A             N/A
+```
+
+```bash
+show vxlan vlanvnimap
+```
+
+Expected output:
+
+```bash
++---------+-------+
+| VLAN    |   VNI |
++=========+=======+
+| Vlan110 | 10110 |
++---------+-------+
+| Vlan200 | 10200 |
++---------+-------+
+| Vlan999 | 10999 |
++---------+-------+
 ```
 
 ### Layer 3 EVPN Route Verification
 
 When Layer 3 EVPN is enabled, the Leaf nodes will start advertising the client facing interface IPs to each other using EVPN IP-prefix Route Type 5.
 
-This can verified using the below command.
+This can verified using the below command **using FRR CLI**.
 
-```srl
-show network-instance default protocols bgp routes evpn route-type summary
+```bash
+show bgp l2vpn evpn route type 5
 ```
 
 Output on Leaf1:
