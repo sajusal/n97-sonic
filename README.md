@@ -405,6 +405,60 @@ Hostname: sonic
 <--snip-->
 ```
 
+Verify the BGP advertised routes on Leaf1 towards Spine:
+
+```bash
+show ip bgp neighbors 192.168.10.3 advertised-routes
+```
+
+Expected output:
+
+```bash
+BGP table version is 6, local router ID is 1.1.1.1, vrf id 0
+Default local pref 100, local AS 64501
+Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>  1.1.1.1/32       0.0.0.0                  0         32768 i
+ *>  2.2.2.2/32       0.0.0.0                                0 64500 64502 i
+ *>  3.3.3.3/32       0.0.0.0                                0 64500 i
+ *>  10.0.0.0/24      0.0.0.0                  0         32768 ?
+ *>  192.168.10.2/31  0.0.0.0                  0         32768 ?
+ *>  192.168.20.2/31  0.0.0.0                                0 64500 ?
+```
+
+Verify the BGP received routes on Leaf1 from Spine:
+
+```bash
+show ip bgp neighbors 192.168.10.3 received-routes
+```
+
+Expected output:
+
+```bash
+BGP table version is 6, local router ID is 1.1.1.1, vrf id 0
+Default local pref 100, local AS 64501
+Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
+               i internal, r RIB-failure, S Stale, R Removed
+Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
+Origin codes:  i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+ *> 1.1.1.1/32       192.168.10.3                           0 64500 64501 i
+ *> 2.2.2.2/32       192.168.10.3                           0 64500 64502 i
+ *> 3.3.3.3/32       192.168.10.3             0             0 64500 i
+ *> 10.0.0.0/24      192.168.10.3             0             0 64500 ?
+ *> 192.168.10.2/31  192.168.10.3             0             0 64500 ?
+ *> 192.168.20.2/31  192.168.10.3             0             0 64500 ?
+
+Total number of prefixes 6, total number of paths 0
+```
+
 The route table for the default network instance (VRF) should now show the system loopback IP of other nodes.
 
 ```bash
