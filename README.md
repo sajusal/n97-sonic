@@ -8,9 +8,9 @@ Shortcut links to major sections in this README:
 
 |   |   |
 |---|---|
-| 1.[Lab Topology](#lab-topology) | 2.[Deploying the lab](#deploying-the-lab) |
-| 3.[BGP Underay](#configure-bgp-underlay) | 4.[BGP Overlay](#configure-bgp-for-overlay) |
-| 5.[Layer 2 EPVN](#configure-l2-evpn-vxlan) | 6.[Layer 3 EVPN](#configure-layer-3-evpn-vxlan) |
+| 1. [Lab Topology](#lab-topology) | 2. [Deploying the lab](#deploying-the-lab) |
+| 3. [BGP Underay](#configure-bgp-underlay) | 4. [BGP Overlay](#configure-bgp-for-overlay) |
+| 5. [Layer 2 EPVN](#configure-l2-evpn-vxlan) | 6. [Layer 3 EVPN](#configure-layer-3-evpn-vxlan) |
 
 ## Lab Environment
 
