@@ -1,0 +1,54 @@
+name: sonic-evpn
+
+mgmt:
+  network: sonic-evpn-lab-mgmt
+  ipv4-subnet: 172.40.30.0/24
+
+prefix: ""
+topology:
+  defaults:
+    kind: sonic-vm
+  kinds:
+    sonic-vm:
+      image: vrnetlab/sonic_sonic-vs:2511
+    linux:
+      image: ghcr.io/mfzhsn/network-multitool-sshd:0.0.5
+  nodes:
+    leaf1:
+      mgmt-ipv4: 172.40.30.2
+    leaf2:
+      mgmt-ipv4: 172.40.30.4
+    spine:
+      mgmt-ipv4: 172.40.30.3
+    client1:
+      kind: linux
+      mgmt-ipv4: 172.40.30.10
+      exec:
+        - ip address add 172.16.10.50/24 dev eth1
+    client2:
+      kind: linux
+      mgmt-ipv4: 172.40.30.11
+      exec:
+        - ip address add 10.80.1.1/24 dev eth1
+        - ip route add 10.90.1.0/24 via 10.80.1.254
+    client3:
+      kind: linux
+      mgmt-ipv4: 172.40.30.12
+      exec:
+        - ip address add 172.16.10.60/24 dev eth1
+    client4:
+      kind: linux
+      mgmt-ipv4: 172.40.30.13
+      exec:
+        - ip address add 10.90.1.1/24 dev eth1
+        - ip route add 10.80.1.0/24 via 10.90.1.254
+  links:
+      # spine-leaf links
+    - endpoints: ["leaf1:eth1", "spine:eth1"]
+    - endpoints: ["leaf2:eth2", "spine:eth2"]
+    
+      # leaf-client links
+    - endpoints: ["client1:eth1","leaf1:eth10"]
+    - endpoints: ["client2:eth1","leaf1:eth11"]
+    - endpoints: ["client3:eth1","leaf2:eth10"]
+    - endpoints: ["client4:eth1","leaf2:eth11"]
