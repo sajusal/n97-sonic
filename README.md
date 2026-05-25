@@ -558,10 +558,18 @@ sudo config save -y
 
 Enable BGP to advertise VNI:
 
-On both Leaf1 and Leaf2, run the following command from FRR cli - using **vtysh**:
+On both Leaf1, run the following command **Using FRR CLI**:
 
 ```bash
 router bgp 64501
+ address-family l2vpn evpn
+  advertise-all-vni
+```
+
+On both Leaf2, run the following command **Using FRR CLI**:
+
+```bash
+router bgp 64502
  address-family l2vpn evpn
   advertise-all-vni
 ```
