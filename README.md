@@ -332,6 +332,7 @@ router bgp 64501
  address-family ipv4 unicast
   network 1.1.1.1/32
   redistribute connected
+  neighbor 192.168.10.3 soft-reconfiguration inbound
  exit-address-family
  !
 exit
@@ -349,6 +350,7 @@ router bgp 64502
  address-family ipv4 unicast
   network 2.2.2.2/32
   redistribute connected
+  neighbor 192.168.20.3 soft-reconfiguration inbound
  exit-address-family
  !
 exit
@@ -368,6 +370,8 @@ router bgp 64500
  address-family ipv4 unicast
   network 3.3.3.3/32
   redistribute connected
+  neighbor 192.168.10.2 soft-reconfiguration inbound
+  neighbor 192.168.20.2 soft-reconfiguration inbound
  exit-address-family
  !
 exit
