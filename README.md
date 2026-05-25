@@ -242,22 +242,41 @@ sudo docker exec –it client3 sh
 
 ## Physical link connectivity
 
-When the lab is deployed with the default startup config, all the links are created with IPv4 addresses.
+To save time, we will use a script to configure the link IP addresses on all devices.
 
-This allows to start configuring the protocols right away.
+On your VM, go to:
+
+```bash
+cd ~/n97-sonic
+```
+
+Then execute the script:
+
+```bash
+./configure_sonic.sh
+```
+
+This script configures the link IP addresses on both leafs and spine switches.
 
 Check the [startup config](configs/fabric-config/) files to see how these objects are configured in SONiC.
 
-After logging in to a SONiC switch, switch to the FRR CLI using:
+After logging in to a SONiC switch, run the below command to view interface status:
 
 ```bash
-vtysh
+show ip interfaces
 ```
 
-To view Interface status on SONiC use:
+Expected output:
 
 ```bash
-show interface brief
+Interface    Master     IPv4 address/mask    Admin/Oper    BGP Neighbor    Neighbor IP
+-----------  ---------  -------------------  ------------  --------------  -------------
+Ethernet0               192.168.10.2/31      up/up         N/A             N/A
+Loopback0               1.1.1.1/32           up/up         N/A             N/A
+Vlan200      Vrf_Type5  10.80.1.254/24       up/up         N/A             N/A
+docker0                 240.127.1.1/24       up/down       N/A             N/A
+eth0                    10.0.0.15/24         up/up         N/A             N/A
+lo                      127.0.0.1/16         up/up         N/A             N/A
 ```
 
 ### IPv4 Link Addressing
