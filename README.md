@@ -32,7 +32,7 @@ The objective of the hands on section of this workshop is the following:
 
 Each workshop participant will be provided with the below topology consisting of 2 leaf and 1 spine nodes along with 4 clients.
 
-![image](images/lab-topology.jpg)
+![image](images/lab-topo-1.png)
 
 ## NOS (Network Operating System)
 
@@ -225,7 +225,7 @@ show interface brief
 
 ### IPv4 Link Addressing
 
-![image](images/lab-ipv4.png)
+![image](images/lab-ipv4-1.png)
 
 ### Verify reachability between devices
 
@@ -383,7 +383,7 @@ For establishing overlay BGP session between Leaf1 and Leaf2, we will use the Lo
 
 BGP overlay configuration is not required on the Spine as Spine is not aware of EVPN routes.
 
-![image](images/bgp-overlay.png)
+![image](images/bgp-overlay-1.png)
 
 ### BGP Overlay Configuration
 
