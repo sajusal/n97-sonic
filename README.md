@@ -360,15 +360,13 @@ Codes: K - kernel route, C - connected, L - local, S - static,
        t - trapped, o - offload failure
 
 IPv4 unicast VRF default:
-K>* 0.0.0.0/0 [0/202] via 10.0.0.2, eth0, weight 1, 00:13:40
-B>* 1.1.1.1/32 [20/0] via 192.168.10.2, Ethernet0, rmapsrc 3.3.3.3, weight 1, 00:12:36
-B>* 2.2.2.2/32 [20/0] via 192.168.20.2, Ethernet4, rmapsrc 3.3.3.3, weight 1, 00:10:17
-C>* 3.3.3.3/32 is directly connected, Loopback0, weight 1, 00:13:39
-C>* 10.0.0.0/24 is directly connected, eth0, weight 1, 00:13:40
-B>* 10.80.1.0/24 [20/0] via 192.168.10.2, Ethernet0, rmapsrc 3.3.3.3, weight 1, 00:12:36
-B>* 10.90.1.0/24 [20/0] via 192.168.20.2, Ethernet4, rmapsrc 3.3.3.3, weight 1, 00:10:17
-C>* 192.168.10.2/31 is directly connected, Ethernet0, weight 1, 00:13:40
-C>* 192.168.20.2/31 is directly connected, Ethernet4, weight 1, 00:13:39
+K>* 0.0.0.0/0 [0/202] via 10.0.0.2, eth0, weight 1, 02:26:02
+C>* 1.1.1.1/32 is directly connected, Loopback0, weight 1, 02:26:02
+B>* 2.2.2.2/32 [20/0] via 192.168.10.3, Ethernet0, rmapsrc 1.1.1.1, weight 1, 02:23:35
+B>* 3.3.3.3/32 [20/0] via 192.168.10.3, Ethernet0, rmapsrc 1.1.1.1, weight 1, 02:23:35
+C>* 10.0.0.0/24 is directly connected, eth0, weight 1, 02:26:02
+C>* 192.168.10.2/31 is directly connected, Ethernet0, weight 1, 02:25:54
+B>* 192.168.20.2/31 [20/0] via 192.168.10.3, Ethernet0, rmapsrc 1.1.1.1, weight 1, 02:23:35
 ```
 
 Now we are ready to configure the overlay.
