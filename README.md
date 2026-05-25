@@ -461,9 +461,6 @@ Hostname: spine
 
 ## Configure L2 EVPN-VXLAN
 
-> <p style="color:red">!!! If you would like to skip configuring BGP and directly start with this section, 
-> point the startup config file location in your topology file (srl-evpn.clab.yml) to `configs/fabric/startup-with-bgp/leaf1-startup-bgp.cfg (for Leaf1)`</p>
-
 Now that we have established our underlay and overlay connectivity, our next step is to configure the Layer 2 EVPN-VXLAN instance.
 
 The objective is to establish a connection between Client 1 (connected to Leaf1) and Client 3 (connected to Leaf2).
@@ -473,22 +470,6 @@ Both the clients are in the same subnet (172.16.10.0/24) and therefore, this wil
 ![image](images/l2-evpn.png)
 
 ### Configure Client Interface
-
-For Layer 2 client interfaces, it is not required to configure IPs on the Leaf interfaces facing the client.
-
-Client facing Layer 2 interface configuration on Leaf1:
-
-```srl
-set / interface ethernet-1/10 description To-Client1
-set / interface ethernet-1/10 subinterface 0 type bridged
-```
-
-Client facing Layer 2 interface configuration on Leaf2:
-
-```srl
-set / interface ethernet-1/10 description To-Client3
-set / interface ethernet-1/10 subinterface 0 type bridged
-```
 
 IP addresses on the client side are pre-configured (on interface eth1) during deployment. This can be verified by logging in to the Client shell and running `ip a`.
 
@@ -518,100 +499,57 @@ All data packets will be encapsulated in VXLAN and transported to the destinatio
 
 On each Leaf, a VXLAN tunnel interface should be created with a unique VNI.
 
-Configuring VXLAN on Leaf1:
+Configuring VXLAN on Leaf1 - using **SONiC CLI**:
 
-```srl
-set / tunnel-interface vxlan13 vxlan-interface 100 type bridged
-set / tunnel-interface vxlan13 vxlan-interface 100 ingress vni 100
+```bash
+sudo config vxlan add vtep 1.1.1.1
+sudo config vxlan evpn_nvo add nvo vtep
 ```
 
 Configuring VXLAN on Leaf2:
 
 ```srl
-set / tunnel-interface vxlan13 vxlan-interface 100 type bridged
-set / tunnel-interface vxlan13 vxlan-interface 100 ingress vni 100
+sudo config vxlan add vtep 2.2.2.2
+sudo config vxlan evpn_nvo add nvo vtep
 ```
 
 ### Configuring Layer 2 EVPN-VXLAN
 
-Layer 2 instance on SR Linux is called MAC-VRF. To learn more about SR Linux Network Instances, visit [SR Linux Documentation](https://documentation.nokia.com/srlinux/24-7/books/config-basics/network-instances.html).
+In this step, we will configure a mac-vrf or VLAN on each Leaf and add the client facing untagged interface along with the VXLAN tunnel interface to the VLAN instance.
 
-In this step, we will configure a mac-vrf on each Leaf and add the client facing interface along with the VXLAN tunnel interface to the mac-vrf instance.
+| Node | VLAN | VNI | Access Port | Tagging |
+|---|---:|---:|---|---|
+| Leaf1 | `110` | `10110` | `Ethernet36` | untagged |
+| Leaf2 | `110` | `10110` | `Ethernet36` | untagged |
 
-Each EVPN instance is uniquely identified by an EVI across the entire network.
+EVPN-VXLAN configuration on both Leaf1 - using **SONiC CLI**:
 
-When advertising an EVPN route over BGP (Multi-Protocol BGP), each route should include a Route Distinguisher (RD) and Route Target (RT).
-
-RD is used to identify the source of the route. In our case, we will use the system-IP:EVI.
-
-RT is used as an identifier (or condition) to import the route on the far end device.
-
-EVPN-VXLAN configuration on Leaf1:
-
-```srl
-set / network-instance mac-vrf-1 type mac-vrf
-set / network-instance mac-vrf-1 interface ethernet-1/10.0
-set / network-instance mac-vrf-1 vxlan-interface vxlan13.100
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 encapsulation-type vxlan
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 vxlan-interface vxlan13.100
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 evi 100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-distinguisher rd 1.1.1.1:100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-target export-rt target:65500:100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-target import-rt target:65500:100
+```bash
+sudo config vlan add 110
+sudo config interface startup Ethernet36
+sudo config vlan member add -u 110 Ethernet36
+sudo config vxlan map add vtep 110 10110
+sudo config save -y
 ```
 
-EVPN-VXLAN configuration on Leaf2:
+EVPN-VXLAN configuration on both Leaf2 - using **SONiC CLI**:
 
-```srl
-set / network-instance mac-vrf-1 type mac-vrf
-set / network-instance mac-vrf-1 interface ethernet-1/10.0
-set / network-instance mac-vrf-1 vxlan-interface vxlan13.100
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 encapsulation-type vxlan
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 vxlan-interface vxlan13.100
-set / network-instance mac-vrf-1 protocols bgp-evpn bgp-instance 1 evi 100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-distinguisher rd 2.2.2.2:100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-target export-rt target:65500:100
-set / network-instance mac-vrf-1 protocols bgp-vpn bgp-instance 1 route-target import-rt target:65500:100
+```bash
+sudo config vlan add 110
+sudo config interface startup Ethernet36
+sudo config vlan member add -u 110 Ethernet36
+sudo config vxlan map add vtep 110 10110
+sudo config save -y
 ```
 
-### Layer 2 EVPN verification
+Enable BGP to advertise VNI:
 
-EVPN will advertise Route Type 3 Inclusive Multicast Ethernet Tag (IMET) to discover PE devices and setup tree for BUM (Broadcast, Unknown, Multicast) traffic.
+On both Leaf1 and Leaf2, run the following command from FRR cli - using **vtysh**:
 
-This route advertisement can be seen in the BGP show output using the below command.
-
-```srl
-show network-instance default protocols bgp routes evpn route-type summary
-```
-
-Output on Leaf1:
-
-```srl
-A:leaf1# show network-instance default protocols bgp routes evpn route-type summary
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Show report for the BGP route table of network-instance "default"
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Status codes: u=used, *=valid, >=best, x=stale
-Origin codes: i=IGP, e=EGP, ?=incomplete
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BGP Router ID: 1.1.1.1      AS: 64501      Local AS: 64501
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Type 3 Inclusive Multicast Ethernet Tag Routes
-+--------+--------------------------------------+------------+---------------------+--------------------------------------+--------------------------------------+
-| Status |         Route-distinguisher          |   Tag-ID   |    Originator-IP    |               neighbor               |               Next-Hop               |
-+========+======================================+============+=====================+======================================+======================================+
-| u*>    | 2.2.2.2:100                          | 0          | 2.2.2.2             | 2.2.2.2                              | 2.2.2.2                              |
-| *      | 2.2.2.2:100                          | 0          | 2.2.2.2             | 2001::2                              | 2.2.2.2                              |
-+--------+--------------------------------------+------------+---------------------+--------------------------------------+--------------------------------------+
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-0 Ethernet Auto-Discovery routes 0 used, 0 valid
-0 MAC-IP Advertisement routes 0 used, 0 valid
-2 Inclusive Multicast Ethernet Tag routes 1 used, 2 valid
-0 Ethernet Segment routes 0 used, 0 valid
-0 IP Prefix routes 0 used, 0 valid
-0 Selective Multicast Ethernet Tag routes 0 used, 0 valid
-0 Selective Multicast Membership Report Sync routes 0 used, 0 valid
-0 Selective Multicast Leave Sync routes 0 used, 0 valid
+```bash
+router bgp 64501
+ address-family l2vpn evpn
+  advertise-all-vni
 ```
 
 ### Ping between Client 1 & 3
@@ -640,109 +578,168 @@ Run `ip a` and note down the MAC address of eth1 interface (facing Leaf2).
 
 The MAC address of Client3 eth1 interface is aa:c1:ab:67:32:61. This could be different in your setup.
 
-Ping Client1 IP from Client3:
+Ping Client1 IP from Client3. Leave the ping running until this section is completed.
 
 ```bash
-ping -c 1 172.16.10.50
+ping 172.16.10.50
 ```
 
 Output on Client1:
 
 ```bash
-/ # ping -c 1 172.16.10.50
+/ # ping 172.16.10.50
 PING 172.16.10.50 (172.16.10.50): 56 data bytes
 64 bytes from 172.16.10.50: seq=0 ttl=64 time=0.886 ms
-
---- 172.16.10.50 ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max = 0.886/0.886/0.886 ms
 ```
 
-Ping is successful. We have now established a Layer2 EVPN connection between Client1 & Client3.
+### Layer 2 EVPN verification
 
-Let's understand how this ping worked.
+Verify the vlan (mac-vrf) configuration on leaf1.
 
-When we initiated the ping from Client3, with the first ping packet an ARP was sent by Client 3 for the destination IP of Client1. Unlike a traditional VPLS, the ARP is not flooded to all devices but only sent to the PE devices discovered using EVPN Route Type 3 (RT3).
+Using **SONiC CLI**:
 
-At the same time, Leaf2 connected to Client3 learns the MAC of Client3 from the source MAC address field of the ICMP ping packet. Leaf2 sends an EVPN MAC-IP Route Type 2 advertisement to Leaf1 advertising Client3 MAC with Leaf2 as next-hop.
+```bash
+show vlan brief
+```
+
+Expected output on leaf1:
+
+```bash
++-----------+--------------+------------+----------------+-------------+-----------------------+
+|   VLAN ID | IP Address   | Ports      | Port Tagging   | Proxy ARP   | DHCP Helper Address   |
++===========+==============+============+================+=============+=======================+
+|       110 |              | Ethernet36 | untagged       | disabled    |                       |
++-----------+--------------+------------+----------------+-------------+-----------------------+
+```
+
+Verify client facing interface status on leaf1:
+
+Using **SONiC CLI**:
+
+```bash
+show interfaces status | egrep "Interface|--|Ethernet36"
+```
+
+Expected output on leaf1:
+
+```bash
+  Interface            Lanes       Speed    MTU    FEC           Alias    Vlan    Oper    Admin    Type    Asym PFC
+-----------  ---------------  ----------  -----  -----  --------------  ------  ------  -------  ------  ----------
+ Ethernet36       9,10,11,12  4294967.3G   9100    N/A   fortyGigE0/36   trunk      up       up     N/A         N/A
+```
+
+Verify VXLAN tunnel on leaf1:
+
+Using **SONiC CLI**:
+
+```bash
+show vxlan tunnel
+```
+
+Expected output on leaf1:
+
+```bash
+vxlan tunnel name    source ip    destination ip    tunnel map name    tunnel map mapping(vni -> vlan)
+-------------------  -----------  ----------------  -----------------  ---------------------------------
+vtep                 1.1.1.1                        map_10110_Vlan110  10110 -> Vlan110
+```
+
+Verify VXLAN Remote MAC on leaf1:
+
+Using **SONiC CLI**:
+
+```bash
+show vxlan remotemac 2.2.2.2
+```
+
+Expected output on leaf1:
+
+```
++---------+-------------------+--------------+-------+---------+
+| VLAN    | MAC               | RemoteVTEP   |   VNI | Type    |
++=========+===================+==============+=======+=========+
+| Vlan110 | aa:c1:ab:99:75:47 | 2.2.2.2      | 10110 | dynamic |
++---------+-------------------+--------------+-------+---------+
+Total count : 1
+```
+
+EVPN will advertise Route Type 3 Inclusive Multicast Ethernet Tag (IMET) to discover leaf devices and setup tree for BUM (Broadcast, Unknown, Multicast) traffic.
+
+This route advertisement can be seen in the BGP show output using the below command.
+
+On leaf1, using **FRR CLI**:
+
+```bash
+show bgp l2vpn evpn route type 3
+```
+
+Output on Leaf1:
+
+```bash
+BGP table version is 7, local router ID is 1.1.1.1
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal
+Origin codes: i - IGP, e - EGP, ? - incomplete
+EVPN type-1 prefix: [1]:[EthTag]:[ESI]:[IPlen]:[VTEP-IP]:[Frag-id]
+EVPN type-2 prefix: [2]:[EthTag]:[MAClen]:[MAC]:[IPlen]:[IP]
+EVPN type-3 prefix: [3]:[EthTag]:[IPlen]:[OrigIP]
+EVPN type-4 prefix: [4]:[ESI]:[IPlen]:[OrigIP]
+EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]
+
+   Network          Next Hop            Metric LocPrf Weight Path
+                    Extended Community
+Route Distinguisher: 1.1.1.1:2
+ *>  [3]:[0]:[32]:[1.1.1.1]
+                    1.1.1.1                            32768 i
+                    ET:8 RT:64501:10110
+Route Distinguisher: 2.2.2.2:2
+ *>  [3]:[0]:[32]:[2.2.2.2]
+                    2.2.2.2                                0 64500 64502 i
+                    RT:64502:10110 ET:8
+
+Displayed 2 prefixes (2 paths) (of requested type)
+```
 
 Now let's verify the MAC-IP advertisement using EVPN Route Type 2.
 
 Run the below command on Leaf1 to see this route advertisement. Verify if the MAC address in the table below is the same MAC address we noted above for Client3.
 
-```srl
-show network-instance default protocols bgp routes evpn route-type summary
+Using **FRR CLI**:
+
+```bash
+show bgp l2vpn evpn route type 2
 ```
 
 Output on Leaf1:
 
-```srl
-A:leaf1# show network-instance default protocols bgp routes evpn route-type summary
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Show report for the BGP route table of network-instance "default"
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Status codes: u=used, *=valid, >=best, x=stale
-Origin codes: i=IGP, e=EGP, ?=incomplete
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BGP Router ID: 1.1.1.1      AS: 64501      Local AS: 64501
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Type 2 MAC-IP Advertisement Routes
-+--------+------------------+------------+-------------------+------------------+------------------+------------------+------------------+--------------------------------+------------------+
-| Status |      Route-      |   Tag-ID   |    MAC-address    |    IP-address    |     neighbor     |     Next-Hop     |      Label       |              ESI               |   MAC Mobility   |
-|        |  distinguisher   |            |                   |                  |                  |                  |                  |                                |                  |
-+========+==================+============+===================+==================+==================+==================+==================+================================+==================+
-| u*>    | 2.2.2.2:100      | 0          | AA:C1:AB:67:32:61 | 0.0.0.0          | 2.2.2.2          | 2.2.2.2          | 100              | 00:00:00:00:00:00:00:00:00:00  | -                |
-| *      | 2.2.2.2:100      | 0          | AA:C1:AB:67:32:61 | 0.0.0.0          | 2001::2          | 2.2.2.2          | 100              | 00:00:00:00:00:00:00:00:00:00  | -                |
-+--------+------------------+------------+-------------------+------------------+------------------+------------------+------------------+--------------------------------+------------------+
+```bash
+BGP table version is 7, local router ID is 1.1.1.1
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal
+Origin codes: i - IGP, e - EGP, ? - incomplete
+EVPN type-1 prefix: [1]:[EthTag]:[ESI]:[IPlen]:[VTEP-IP]:[Frag-id]
+EVPN type-2 prefix: [2]:[EthTag]:[MAClen]:[MAC]:[IPlen]:[IP]
+EVPN type-3 prefix: [3]:[EthTag]:[IPlen]:[OrigIP]
+EVPN type-4 prefix: [4]:[ESI]:[IPlen]:[OrigIP]
+EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]
+
+   Network          Next Hop            Metric LocPrf Weight Path
+                    Extended Community
+Route Distinguisher: 1.1.1.1:2
+ *>  [2]:[0]:[48]:[aa:c1:ab:6b:99:b0]
+                    1.1.1.1                            32768 i
+                    ET:8 RT:64501:10110
+ *>  [2]:[0]:[48]:[aa:c1:ab:6b:99:b0]:[128]:[fe80::a8c1:abff:fe6b:99b0]
+                    1.1.1.1                            32768 i
+                    ET:8 RT:64501:10110
+Route Distinguisher: 2.2.2.2:2
+ *>  [2]:[0]:[48]:[aa:c1:ab:99:75:47]
+                    2.2.2.2                                0 64500 64502 i
+                    RT:64502:10110 ET:8
+ *>  [2]:[0]:[48]:[aa:c1:ab:99:75:47]:[128]:[fe80::a8c1:abff:fe99:7547]
+                    2.2.2.2                                0 64500 64502 i
+                    RT:64502:10110 ET:8
+
+Displayed 4 prefixes (4 paths) (of requested type)
 ```
-
-When Leaf1 receives the ARP from Leaf2 for Client1 IP, Leaf1 will broadcast that ARP to it's connected Client. Client1 responds to the ARP which is encapsulated by Leaf1 and sent to Leaf2.
-
-Now Leaf1 will send EVPN Route Type2 to Leaf2 advertising Client1 MAC address with Leaf1 system IP as next-hop. Verify this using the same command above on Leaf2.
-
-At this time, both Leaf nodes have learned the remote Client MAC address.
-
-Verify the MAC Address table on the Leaf using the below command.
-
-```srl
-show network-instance mac-vrf-1 bridge-table mac-table all
-```
-
-Output on Leaf1:
-
-The table shows that Client1 (locally connected to Leaf1) MAC was learned directly over the interface facing the client.
-
-Client3 MAC address was learned over the VXLAN tunnel. The ICMP ping packet will be encapsulated in VXLAN and sent to the destination 2.2.2.2 (Leaf2).
-
-On Leaf2, the VXLAN encapsulation will be removed and the packet will be forwarded to Client3.
-
-
-```srl
-A:leaf1# show network-instance mac-vrf-1 bridge-table mac-table all
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Mac-table of network instance mac-vrf-1
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-+--------------------+------------------------------------------------------+------------+----------------+---------+--------+------------------------------------------------------+
-|      Address       |                     Destination                      | Dest Index |      Type      | Active  | Aging  |                     Last Update                      |
-+====================+======================================================+============+================+=========+========+======================================================+
-| AA:C1:AB:67:32:61  | vxlan-interface:vxlan13.100 vtep:2.2.2.2 vni:100     | 2736993    | evpn           | true    | N/A    | 2024-10-17T04:46:04.000Z                             |
-| AA:C1:AB:81:49:35  | ethernet-1/10.0                                      | 2          | learnt         | true    | 76     | 2024-10-17T04:46:00.000Z                             |
-+--------------------+------------------------------------------------------+------------+----------------+---------+--------+------------------------------------------------------+
-```
-
-### Debug and Packet Capture in SR Linux
-
-SR Linux provides tools in CLI to capture packets for debug purposes.
-
-Run the below command on Spine while a ping test is in progress between Client1 and Client3.
-
-The output shows VXLAN encapsulated ICMP packets being sent between the 2 clients.
-
-```srl
-tools system traffic-monitor verbose protocol udp destination-port 4789
-```
-
-In this command, port 4789 is standard port for VXLAN.
 
 ### Packet Capture in Containerlab
 
