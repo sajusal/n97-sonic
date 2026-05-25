@@ -39,6 +39,13 @@ Each workshop participant will be provided with the below topology consisting of
 
 Both leafs and Spine nodes will be running the latest SONiC 202511 release.
 
+SONiC NOS has 2 main Command Line Interfaces:
+
+- SONiC (default cli) - sample prompt `admin@leaf1:~$`
+- FRR (enter using `vtysh` from SONiC CLI) - sample prompt `leaf1#`
+
+For all configuration and show commands listed in this workshop, we specify the CLI from where it should be executed.
+
 All 4 clients will be running [Alpine Linux](https://alpinelinux.org/)
 
 ## Installing Containerlab
