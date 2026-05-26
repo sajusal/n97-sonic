@@ -367,9 +367,10 @@ router bgp 64502
  !
 exit
 !
+exit
 write memory
 exit
-back in SONiC CLI
+!back in SONiC CLI
 sudo config save -y
 ```
 
@@ -392,9 +393,10 @@ router bgp 64500
  !
 exit
 !
+exit
 write memory
 exit
-back in SONiC CLI
+!back in SONiC CLI
 sudo config save -y
 ```
 
