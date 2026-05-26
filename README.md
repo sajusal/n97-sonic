@@ -348,6 +348,7 @@ exit
 exit
 write memory
 exit
+exit
 ```
 ```bash
 sudo config save -y
@@ -371,6 +372,7 @@ exit
 !
 exit
 write memory
+exit
 exit
 ```
 ```bash
@@ -398,6 +400,7 @@ exit
 !
 exit
 write memory
+exit
 exit
 ```
 ```bash
