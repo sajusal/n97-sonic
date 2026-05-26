@@ -241,8 +241,12 @@ ssh admin@leaf1
 
 To login to the client, identify the client hostname using the `sudo clab inspect --all` command above and then:
 
+Username: `root`
+
+Password: 'password'
+
 ```bash
-sudo docker exec –it client3 sh
+ssh root@client1
 ```
 
 ## Physical link connectivity
