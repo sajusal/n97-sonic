@@ -348,7 +348,7 @@ exit
 exit
 write memory
 exit
-back in SONiC CLI
+
 sudo config save -y
 ```
 
@@ -371,7 +371,7 @@ exit
 exit
 write memory
 exit
-!back in SONiC CLI
+
 sudo config save -y
 ```
 
@@ -397,7 +397,7 @@ exit
 exit
 write memory
 exit
-!back in SONiC CLI
+
 sudo config save -y
 ```
 
