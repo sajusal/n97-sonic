@@ -934,7 +934,6 @@ bash << 'EOF'
 sudo config vlan add 200
 sudo config interface startup Ethernet40
 sudo config vlan member add -u 200 Ethernet40
-sudo config interface ip add Vlan200 10.80.1.254/24
 EOF
 ```
 
@@ -947,7 +946,6 @@ bash << 'EOF'
 sudo config vlan add 240
 sudo config interface startup Ethernet40
 sudo config vlan member add -u 240 Ethernet40
-sudo config interface ip add Vlan240 10.90.1.254/24
 EOF
 ```
 
@@ -1025,6 +1023,7 @@ Using **SONiC CLI**:
 bash << 'EOF'
 sudo config vrf add Vrf_Type5
 sudo config interface vrf bind Vlan200 Vrf_Type5
+sudo config interface ip add Vlan200 10.80.1.254/24
 sudo config vlan add 999
 sudo config interface vrf bind Vlan999 Vrf_Type5
 sudo config vxlan map add vtep 200 10200
@@ -1042,6 +1041,7 @@ Using **SONiC CLI**:
 bash << 'EOF'
 sudo config vrf add Vrf_Type5
 sudo config interface vrf bind Vlan240 Vrf_Type5
+sudo config interface ip add Vlan240 10.90.1.254/24
 sudo config vlan add 999
 sudo config interface vrf bind Vlan999 Vrf_Type5
 sudo config vxlan map add vtep 240 10240
