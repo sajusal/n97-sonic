@@ -400,7 +400,13 @@ We will export the loopback IP over BGP to other nodes. This is required to crea
 
 ### BGP Underlay Configuration
 
-From FRR CLI (enter using `vtysh`), get into configuration mode by entering:
+BGP configuration will be done from `FRR` CLI. After logging into the node, enter `FRR` CLI using:
+
+```bash
+vtysh
+```
+
+Then, get into configuration mode by entering:
 
 ```bash
 config
