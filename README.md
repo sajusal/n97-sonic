@@ -290,7 +290,28 @@ This script configures the link IP addresses on both leafs and spine switches.
 
 Check the [startup config](configs/fabric-config/) files to see how these objects are configured in SONiC.
 
-After logging in to a SONiC switch, run the below command to view interface status:
+Expected output:
+
+```bash
+[leaf1] 📤 Copying config...
+[leaf2] 📤 Copying config...
+[spine] 📤 Copying config...
+[leaf2] 🔄 Reloading SONiC config...
+[spine] 🔄 Reloading SONiC config...
+[leaf1] 🔄 Reloading SONiC config...
+[leaf2] ✅ Completed
+[spine] ✅ Completed
+[leaf1] ✅ Completed
+
+🚀 SONiC fabric deployment completed successfully
+
+Logs:
+  /tmp/leaf1-reload.log
+  /tmp/leaf2-reload.log
+  /tmp/spine-reload.log
+```
+
+After logging in to `leaf1`, run the below command to view interface status:
 
 ```bash
 show ip interfaces
@@ -316,10 +337,10 @@ lo                      127.0.0.1/16         up/up         N/A             N/A
 
 After the lab is deployed, check reachability between leaf and spine devices using ping.
 
-Example on spine to Leaf1:
+Example on Leaf1 to spine:
 
 ```bash
-ping 192.168.10.2
+ping 192.168.10.3
 ```
 
 Stop the ping using CTRL+c
@@ -1067,7 +1088,7 @@ sudo docker exec -it client2 sh
 Ping Client4 IP from Client2:
 
 ```bash
-ping -c 1 10.90.1.1
+ping -c 3 10.90.1.1
 ```
 
 Expected output:
