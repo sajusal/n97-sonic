@@ -110,13 +110,13 @@ hello-world               latest    d2c94e258dcb   18 months ago    13.3kB
 SONiC docker image (made using [vrnetlab](https://github.com/srl-labs/vrnetlab/tree/master) is available on your VM.
 
 ```bash
-ls -lrt /images/docker-sonic-vs-2511
+ls -lrt ~/images/docker-sonic-vs-2511
 ```
 
 Import this image to docker repo
 
 ```bash
-docker load -i /images/docker-sonic-vs-2511
+docker load -i ~/images/docker-sonic-vs-2511
 ```
 
 Verify that the image is available in the docker repo
