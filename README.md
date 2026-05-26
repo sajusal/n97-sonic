@@ -87,8 +87,14 @@ cd ~/vrnetlab
 
 SONiC vs image (downloaded from [sonic.software](https://sonic.software/)) should be copied to the `~/vrnetlab/sonic/` directory before building the container image.
 
+Once image is downloaded, unzip the file and save as .qcow2 format. 
 ```bash
-cp ~/images/sonic-vs-202405.qcow2 ~/vrnetlab/sonic/
+gunzip sonic-vs-202511.img.gz
+cp sonic-vs-2025.11.img sonic-vs-202511.qcow2
+```
+
+```bash
+cp ~/images/sonic-vs-202511.qcow2 ~/vrnetlab/sonic/
 ```
 
 Once copied, we can change to `~/vrnetlab/sonic` image and build the container image:
