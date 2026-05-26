@@ -345,6 +345,10 @@ router bgp 64501
  !
 exit
 !
+write memory
+exit
+back in SONiC CLI
+sudo config save -y
 ```
 
 BGP underlay configuration on Leaf2:
@@ -363,6 +367,10 @@ router bgp 64502
  !
 exit
 !
+write memory
+exit
+back in SONiC CLI
+sudo config save -y
 ```
 
 BGP underlay configuration on Spine:
@@ -384,6 +392,10 @@ router bgp 64500
  !
 exit
 !
+write memory
+exit
+back in SONiC CLI
+sudo config save -y
 ```
 
 ### BGP Underlay Verification
