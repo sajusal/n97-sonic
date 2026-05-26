@@ -345,6 +345,7 @@ router bgp 64501
  !
 exit
 !
+exit
 write memory
 exit
 back in SONiC CLI
