@@ -57,6 +57,22 @@ For all configuration and show commands listed in this workshop, we specify the 
 
 All 4 clients will be running [Alpine Linux](https://alpinelinux.org/)
 
+### Using Codespaces
+
+This lab can be deployed using GitHub Codespaces. Once you are logged into GitHub, click the below icon and wait for 2 minutes for codespaces to be ready.
+
+---
+<div align=center>
+<a href="https://codespaces.new/sajusal/n97-sonic?quickstart=1">
+<img src="https://gitlab.com/rdodin/pics/-/wikis/uploads/d78a6f9f6869b3ac3c286928dd52fa08/run_in_codespaces-v1.svg?sanitize=true" style="width:50%"/></a>
+
+**[Run](https://codespaces.new/sajusal/n97-sonic?quickstart=1) this lab in GitHub Codespaces for free**.  
+[Learn more](https://containerlab.dev/manual/codespaces/) about Containerlab for Codespaces.
+
+</div>
+
+---
+
 ## Installing Containerlab
 
 To learn more about Containerlab, refer to [Nanog 93 Containerlab Workshop](https://github.com/srlinuxamericas/n93-clab)
