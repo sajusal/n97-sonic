@@ -687,7 +687,7 @@ IP addresses on the client side are pre-configured (on interface eth1) during de
 
 To login to Client1, use:
 ```bash
-sudo docker exec -it client1 sh
+ssh root@client1
 ```
 
 Output on Client1:
