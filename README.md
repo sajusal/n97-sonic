@@ -250,6 +250,8 @@ sudo clab inspect --all
 
 ## Connecting to the devices
 
+**The nodes take around 1 minute to boot up.**
+
 Find the nodename or IP address of the device from the above output and then use SSH.
 
 Username: `admin`
