@@ -85,7 +85,7 @@ Install Containerlab on your VM.
 curl -sL https://containerlab.dev/setup | sudo -E bash -s "all"
 ```
 
-Logout and login for the sudo privileges to take effect.
+**Logout and login for the sudo privileges to take effect.**
 
 
 ## Converting SONiC qcow2 to docker image for Containerlab
