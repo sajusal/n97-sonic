@@ -652,15 +652,19 @@ On each Leaf, a VXLAN tunnel interface should be created with a unique VNI.
 Configuring VXLAN on Leaf1 - using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vxlan add vtep 1.1.1.1
 sudo config vxlan evpn_nvo add nvo vtep
+EOF
 ```
 
 Configuring VXLAN on Leaf2:
 
-```srl
+```bash
+bash << 'EOF'
 sudo config vxlan add vtep 2.2.2.2
 sudo config vxlan evpn_nvo add nvo vtep
+EOF
 ```
 
 ### Configuring Layer 2 EVPN-VXLAN
@@ -675,21 +679,25 @@ In this step, we will configure a mac-vrf or VLAN on each Leaf and add the clien
 EVPN-VXLAN configuration on both Leaf1 - using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vlan add 110
 sudo config interface startup Ethernet36
 sudo config vlan member add -u 110 Ethernet36
 sudo config vxlan map add vtep 110 10110
 sudo config save -y
+EOF
 ```
 
 EVPN-VXLAN configuration on both Leaf2 - using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vlan add 110
 sudo config interface startup Ethernet36
 sudo config vlan member add -u 110 Ethernet36
 sudo config vxlan map add vtep 110 10110
 sudo config save -y
+EOF
 ```
 
 Enable BGP to advertise VNI:
@@ -922,10 +930,12 @@ Client Layer 3 interface configuration on Leaf1:
 Using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vlan add 200
 sudo config interface startup Ethernet40
 sudo config vlan member add -u 200 Ethernet40
 sudo config interface ip add Vlan200 10.80.1.254/24
+EOF
 ```
 
 Client Layer 3 interface configuration on Leaf2:
@@ -933,10 +943,12 @@ Client Layer 3 interface configuration on Leaf2:
 Using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vlan add 240
 sudo config interface startup Ethernet40
 sudo config vlan member add -u 240 Ethernet40
 sudo config interface ip add Vlan240 10.90.1.254/24
+EOF
 ```
 
 IP addresses on the client side are pre-configured during deployment. This can be verified by logging in to the Client shell and running `ip a`.
@@ -1010,6 +1022,7 @@ EVPN-VXLAN configuration on Leaf1:
 Using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vrf add Vrf_Type5
 sudo config interface vrf bind Vlan200 Vrf_Type5
 sudo config vlan add 999
@@ -1018,6 +1031,7 @@ sudo config vxlan map add vtep 200 10200
 sudo config vxlan map add vtep 999 10999
 sudo config vrf add_vrf_vni_map Vrf_Type5 10999
 sudo config save -y
+EOF
 ```
 
 EVPN-VXLAN configuration on Leaf2:
@@ -1025,6 +1039,7 @@ EVPN-VXLAN configuration on Leaf2:
 Using **SONiC CLI**:
 
 ```bash
+bash << 'EOF'
 sudo config vrf add Vrf_Type5
 sudo config interface vrf bind Vlan240 Vrf_Type5
 sudo config vlan add 999
@@ -1033,6 +1048,7 @@ sudo config vxlan map add vtep 240 10240
 sudo config vxlan map add vtep 999 10999
 sudo config vrf add_vrf_vni_map Vrf_Type5 10999
 sudo config save -y
+EOF
 ```
 
 ### Ping between Client 2 & 4
