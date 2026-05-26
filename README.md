@@ -787,7 +787,7 @@ Verify if Client 3 is able to ping Client 1
 Login to Client3 using:
 
 ```bash
-sudo docker exec -it client3 sh
+ssh root@client3
 ```
 
 Run `ip a` and note down the MAC address of eth1 interface (facing Leaf2).
