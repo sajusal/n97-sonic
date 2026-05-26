@@ -348,7 +348,8 @@ exit
 exit
 write memory
 exit
-
+```
+```bash
 sudo config save -y
 ```
 
@@ -371,7 +372,8 @@ exit
 exit
 write memory
 exit
-
+```
+```bash
 sudo config save -y
 ```
 
@@ -397,7 +399,8 @@ exit
 exit
 write memory
 exit
-
+```
+```bash
 sudo config save -y
 ```
 
