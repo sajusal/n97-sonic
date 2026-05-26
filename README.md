@@ -61,6 +61,8 @@ All 4 clients will be running [Alpine Linux](https://alpinelinux.org/)
 
 This lab can be deployed using GitHub Codespaces. Once you are logged into GitHub, click the below icon and wait for 2 minutes for codespaces to be ready.
 
+Refer to instructions in the [Codespace](./Codespace) directory for importing the sonic image.
+
 ---
 <div align=center>
 <a href="https://codespaces.new/sajusal/n97-sonic?quickstart=1">
@@ -85,8 +87,10 @@ curl -sL https://containerlab.dev/setup | sudo -E bash -s "all"
 
 Logout and login for the sudo privileges to take effect.
 
-**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+
 ## Converting SONiC qcow2 to docker image for Containerlab
+
+**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
 
 VM nodes integration in containerlab is based on the [hellt/vrnetlab](https://github.com/hellt/vrnetlab) project which is a fork of `vrnetlab/vrnetlab` where things were added to make it work with the container networking.
 
@@ -103,7 +107,8 @@ cd ~/vrnetlab
 
 SONiC vs image (downloaded from [sonic.software](https://sonic.software/)) should be copied to the `~/vrnetlab/sonic/` directory before building the container image.
 
-Once image is downloaded, unzip the file and save as .qcow2 format. 
+Once image is downloaded, unzip the file and save as .qcow2 format.
+
 ```bash
 gunzip sonic-vs-202511.img.gz
 cp sonic-vs-2025.11.img sonic-vs-202511.qcow2
