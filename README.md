@@ -252,6 +252,18 @@ sudo clab inspect --all
 
 **The nodes take around 1 minute to boot up.**
 
+Monitor the boot logs using the below command (for leaf1):
+
+```bash
+docker logs -f leaf1
+```
+
+Wait unti the below message is displayed which indicates that the node is fully booted up.
+
+```bash
+2026-05-26 20:52:08,868: launch         INFO Startup complete in: 0:00:57.368875
+```
+
 Find the nodename or IP address of the device from the above output and then use SSH.
 
 Username: `admin`
@@ -260,6 +272,27 @@ Password: Refer to the provided card
 
 ```bash
 ssh admin@leaf1
+```
+
+On leaf1, verify the internal docker container for sonic functions are running:
+
+```bash
+docker ps
+```
+
+Expected output:
+
+```bash
+CONTAINER ID   IMAGE                             COMMAND                  CREATED              STATUS              PORTS     NAMES
+293bb12230c9   docker-router-advertiser:latest   "/usr/bin/docker-ini…"   43 seconds ago       Up 32 seconds                 radv
+cb6cdbe8864a   docker-eventd:latest              "/usr/local/bin/supe…"   48 seconds ago       Up 34 seconds                 eventd
+47901108e5c9   docker-gbsyncd-vs:latest          "/usr/local/bin/supe…"   48 seconds ago       Up 35 seconds                 gbsyncd
+98047686a9df   docker-fpm-frr:latest             "/usr/bin/docker_ini…"   49 seconds ago       Up 38 seconds                 bgp
+a6f0e28d892f   docker-syncd-vs:latest            "/usr/local/bin/supe…"   50 seconds ago       Up 45 seconds                 syncd
+c9ad613736ae   docker-teamd:latest               "/usr/local/bin/supe…"   50 seconds ago       Up 45 seconds                 teamd
+f91d020de202   docker-sysmgr:latest              "/usr/local/bin/supe…"   50 seconds ago       Up 48 seconds                 sysmgr
+490b6f7ad1c0   docker-orchagent:latest           "/usr/bin/docker-ini…"   53 seconds ago       Up 51 seconds                 swss
+afa0ebc613d0   docker-database:latest            "/usr/local/bin/dock…"   About a minute ago   Up About a minute             database
 ```
 
 To login to the client, identify the client hostname using the `sudo clab inspect --all` command above and then:
