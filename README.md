@@ -470,14 +470,12 @@ exit
 The BGP underlay sessions should be UP now. Check using the following command on the Spine (while inside config mode).
 
 ```bash
-do show bgp ipv4 neighbors
+do show ip bgp summary
 ```
 
 The output below confirms that IPv4 BGP neighbor sessions are established between Spine and the 2 Leaf nodes.
 
 ```bash
-spine# show ip bgp summary
-
 IPv4 Unicast Summary:
 BGP router identifier 3.3.3.3, local AS number 64500 VRF default vrf-id 0
 BGP table version 10
@@ -489,20 +487,19 @@ Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down Sta
 192.168.20.2    4      64502        61        63       10    0    0 00:03:45            3        6 N/A
 
 Total number of neighbors 2
-
 ```
 
-Verify the BGP advertised routes on Leaf1 towards Spine:
+Verify the BGP advertised routes on Spine towards Leaf1:
 
 ```bash
-show ip bgp neighbors 192.168.10.3 advertised-routes
+do show ip bgp neighbors 192.168.10.2 advertised-routes
 ```
 
 Expected output:
 
 ```bash
-BGP table version is 6, local router ID is 1.1.1.1, vrf id 0
-Default local pref 100, local AS 64501
+BGP table version is 6, local router ID is 3.3.3.3, vrf id 0
+Default local pref 100, local AS 64500
 Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
                i internal, r RIB-failure, S Stale, R Removed
 Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
@@ -510,25 +507,27 @@ Origin codes:  i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *>  1.1.1.1/32       0.0.0.0                  0         32768 i
- *>  2.2.2.2/32       0.0.0.0                                0 64500 64502 i
- *>  3.3.3.3/32       0.0.0.0                                0 64500 i
+ *>  1.1.1.1/32       0.0.0.0                                0 64501 i
+ *>  2.2.2.2/32       0.0.0.0                                0 64502 i
+ *>  3.3.3.3/32       0.0.0.0                  0         32768 i
  *>  10.0.0.0/24      0.0.0.0                  0         32768 ?
  *>  192.168.10.2/31  0.0.0.0                  0         32768 ?
- *>  192.168.20.2/31  0.0.0.0                                0 64500 ?
+ *>  192.168.20.2/31  0.0.0.0                  0         32768 ?
+
+Total number of prefixes 6, total number of paths 6
 ```
 
-Verify the BGP received routes on Leaf1 from Spine:
+Verify the BGP received routes on Spine from leaf1:
 
 ```bash
-show ip bgp neighbors 192.168.10.3 received-routes
+do show ip bgp neighbors 192.168.10.2 received-routes
 ```
 
 Expected output:
 
 ```bash
-BGP table version is 6, local router ID is 1.1.1.1, vrf id 0
-Default local pref 100, local AS 64501
+BGP table version is 6, local router ID is 3.3.3.3, vrf id 0
+Default local pref 100, local AS 64500
 Status codes:  s suppressed, d damped, h history, u unsorted, * valid, > best, = multipath,
                i internal, r RIB-failure, S Stale, R Removed
 Nexthop codes: @NNN nexthop's vrf id, < announce-nh-self
@@ -536,12 +535,12 @@ Origin codes:  i - IGP, e - EGP, ? - incomplete
 RPKI validation codes: V valid, I invalid, N Not found
 
      Network          Next Hop            Metric LocPrf Weight Path
- *> 1.1.1.1/32       192.168.10.3                           0 64500 64501 i
- *> 2.2.2.2/32       192.168.10.3                           0 64500 64502 i
- *> 3.3.3.3/32       192.168.10.3             0             0 64500 i
- *> 10.0.0.0/24      192.168.10.3             0             0 64500 ?
- *> 192.168.10.2/31  192.168.10.3             0             0 64500 ?
- *> 192.168.20.2/31  192.168.10.3             0             0 64500 ?
+ *> 1.1.1.1/32       192.168.10.2             0             0 64501 i
+ *> 2.2.2.2/32       192.168.10.2                           0 64501 64500 64502 i
+ *> 3.3.3.3/32       192.168.10.2                           0 64501 64500 i
+ *> 10.0.0.0/24      192.168.10.2             0             0 64501 ?
+ *> 192.168.10.2/31  192.168.10.2             0             0 64501 ?
+ *> 192.168.20.2/31  192.168.10.2                           0 64501 64500 ?
 
 Total number of prefixes 6, total number of paths 0
 ```
