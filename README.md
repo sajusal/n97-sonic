@@ -793,10 +793,9 @@ ssh root@client3
 Run `ip a` and note down the MAC address of eth1 interface (facing Leaf2).
 
 ```bash
-# sudo docker exec -it client3 sh
 / # ip a
 26: eth1@if25: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 9500 qdisc noqueue state UP
-    link/ether aa:c1:ab:67:32:61 brd ff:ff:ff:ff:ff:ff
+    link/ether aa:c1:ab:ce:c5:d5 brd ff:ff:ff:ff:ff:ff
     inet 172.16.10.60/24 scope global eth1
        valid_lft forever preferred_lft forever
     inet6 fe80::a8c1:abff:fe3f:aed8/64 scope link
@@ -804,7 +803,7 @@ Run `ip a` and note down the MAC address of eth1 interface (facing Leaf2).
 / #
 ```
 
-The MAC address of Client3 eth1 interface is aa:c1:ab:67:32:61. This could be different in your setup.
+The MAC address of Client3 eth1 interface is aa:c1:ab:ce:c5:d5. This could be different in your setup.
 
 Ping Client1 IP from Client3. Leave the ping running until this section is completed.
 
@@ -819,6 +818,8 @@ Output on Client1:
 PING 172.16.10.50 (172.16.10.50): 56 data bytes
 64 bytes from 172.16.10.50: seq=0 ttl=64 time=0.886 ms
 ```
+
+Leave the ping running until the end of the L2 EVPN section.
 
 ### Layer 2 EVPN verification
 
@@ -872,7 +873,7 @@ vxlan tunnel name    source ip    destination ip    tunnel map name    tunnel ma
 vtep                 1.1.1.1                        map_10110_Vlan110  10110 -> Vlan110
 ```
 
-Verify VXLAN Remote MAC on leaf1:
+Verify VXLAN Remote MAC on leaf1. This MAC should be the same as the MAC address noted above from client3.
 
 Using **SONiC CLI**:
 
@@ -886,7 +887,7 @@ Expected output on leaf1:
 +---------+-------------------+--------------+-------+---------+
 | VLAN    | MAC               | RemoteVTEP   |   VNI | Type    |
 +=========+===================+==============+=======+=========+
-| Vlan110 | aa:c1:ab:99:75:47 | 2.2.2.2      | 10110 | dynamic |
+| Vlan110 | aa:c1:ab:ce:c5:d5 | 2.2.2.2      | 10110 | dynamic |
 +---------+-------------------+--------------+-------+---------+
 Total count : 1
 ```
@@ -940,7 +941,7 @@ show bgp l2vpn evpn route type 2
 Output on Leaf1:
 
 ```bash
-BGP table version is 7, local router ID is 1.1.1.1
+BGP table version is 2, local router ID is 1.1.1.1
 Status codes: s suppressed, d damped, h history, * valid, > best, i - internal
 Origin codes: i - IGP, e - EGP, ? - incomplete
 EVPN type-1 prefix: [1]:[EthTag]:[ESI]:[IPlen]:[VTEP-IP]:[Frag-id]
@@ -952,22 +953,18 @@ EVPN type-5 prefix: [5]:[EthTag]:[IPlen]:[IP]
    Network          Next Hop            Metric LocPrf Weight Path
                     Extended Community
 Route Distinguisher: 1.1.1.1:2
- *>  [2]:[0]:[48]:[aa:c1:ab:6b:99:b0]
-                    1.1.1.1                            32768 i
-                    ET:8 RT:64501:10110
- *>  [2]:[0]:[48]:[aa:c1:ab:6b:99:b0]:[128]:[fe80::a8c1:abff:fe6b:99b0]
+ *>  [2]:[0]:[48]:[aa:c1:ab:e3:a1:0d]
                     1.1.1.1                            32768 i
                     ET:8 RT:64501:10110
 Route Distinguisher: 2.2.2.2:2
- *>  [2]:[0]:[48]:[aa:c1:ab:99:75:47]
-                    2.2.2.2                                0 64500 64502 i
-                    RT:64502:10110 ET:8
- *>  [2]:[0]:[48]:[aa:c1:ab:99:75:47]:[128]:[fe80::a8c1:abff:fe99:7547]
+ *>  [2]:[0]:[48]:[aa:c1:ab:ce:c5:d5]
                     2.2.2.2                                0 64500 64502 i
                     RT:64502:10110 ET:8
 
-Displayed 4 prefixes (4 paths) (of requested type)
+Displayed 2 prefixes (2 paths) (of requested type)
 ```
+
+We can see that the route advertised from `2.2.2.2` contains the MAC address from client3 - `aa:c1:ab:ce:c5:d5`.
 
 ### Packet Capture in Containerlab
 
@@ -1011,7 +1008,7 @@ sudo config vlan member add -u 240 Ethernet40
 EOF
 ```
 
-IP addresses on the client side are pre-configured during deployment. This can be verified by logging in to the Client shell and running `ip a`.
+IP addresses on the client side are pre-configured during deployment. This can be verified by logging in to the Client and running `ip a`.
 
 ### Configuring VXLAN
 
@@ -1118,7 +1115,7 @@ EOF
 Login to client2 using:
 
 ```bash
-sudo docker exec -it client2 sh
+ssh root@client2
 ```
 
 Ping Client4 IP from Client2:
@@ -1130,12 +1127,14 @@ ping -c 3 10.90.1.1
 Expected output:
 
 ```bash
-PING 10.90.1.1 (10.90.1.1): 56 data bytes
-64 bytes from 10.90.1.1: seq=0 ttl=253 time=2.208 ms
+PING 10.90.1.1 (10.90.1.1) 56(84) bytes of data.
+64 bytes from 10.90.1.1: icmp_seq=1 ttl=62 time=4.18 ms
+64 bytes from 10.90.1.1: icmp_seq=2 ttl=62 time=2.28 ms
+64 bytes from 10.90.1.1: icmp_seq=3 ttl=62 time=2.07 ms
 
 --- 10.90.1.1 ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max = 2.208/2.208/2.208 ms
+3 packets transmitted, 3 received, 0% packet loss, time 2002ms
+rtt min/avg/max/mdev = 2.066/2.842/4.184/0.952 ms
 ```
 
 ### VLAN and VXLAN Verification
@@ -1257,4 +1256,7 @@ B>* 10.90.1.1/32 [20/0] via 2.2.2.2, Vlan999 onlink, weight 1, 00:08:46
 
 ### End of Workshop
 
+This completes the SONiC workshop. Please reach out to any of the instructors if you have any follow up questions.
+
+Thank you for attending !
 
