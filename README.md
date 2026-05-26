@@ -393,20 +393,20 @@ do show bgp ipv4 neighbors
 The output below confirms that IPv4 BGP neighbor sessions are established between Spine and the 2 Leaf nodes.
 
 ```bash
-BGP neighbor is 192.168.10.2, remote AS 64501, local AS 64500, external link
-  Local Role: undefined
-  Remote Role: undefined
-Hostname: sonic
-  BGP version 4, remote router ID 1.1.1.1, local router ID 3.3.3.3
-  BGP state = Established, up for 00:08:36
-<--snip-->
-BGP neighbor is 192.168.20.2, remote AS 64502, local AS 64500, external link
-  Local Role: undefined
-  Remote Role: undefined
-Hostname: sonic
-  BGP version 4, remote router ID 2.2.2.2, local router ID 3.3.3.3
-  BGP state = Established, up for 00:06:17
-<--snip-->
+spine# show ip bgp summary
+
+IPv4 Unicast Summary:
+BGP router identifier 3.3.3.3, local AS number 64500 VRF default vrf-id 0
+BGP table version 10
+RIB entries 11, using 1408 bytes of memory
+Peers 2, using 47 KiB of memory
+
+Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down State/PfxRcd   PfxSnt Desc
+192.168.10.2    4      64501        57        59       10    0    0 00:00:22            3        6 N/A
+192.168.20.2    4      64502        61        63       10    0    0 00:03:45            3        6 N/A
+
+Total number of neighbors 2
+
 ```
 
 Verify the BGP advertised routes on Leaf1 towards Spine:
