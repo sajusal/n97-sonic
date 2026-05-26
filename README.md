@@ -90,7 +90,9 @@ Logout and login for the sudo privileges to take effect.
 
 ## Converting SONiC qcow2 to docker image for Containerlab
 
-**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+```diff
+- **This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+```
 
 VM nodes integration in containerlab is based on the [hellt/vrnetlab](https://github.com/hellt/vrnetlab) project which is a fork of `vrnetlab/vrnetlab` where things were added to make it work with the container networking.
 
@@ -103,7 +105,9 @@ cd ~/vrnetlab
 
 ### Building SONiC container image
 
-**This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+```diff
+- **This section is for reference only. The converted SONiC docker image is already on your workshop VM**
+```
 
 SONiC vs image (downloaded from [sonic.software](https://sonic.software/)) should be copied to the `~/vrnetlab/sonic/` directory before building the container image.
 
