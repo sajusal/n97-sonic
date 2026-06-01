@@ -46,7 +46,7 @@ SONiC NOS has 2 main Command Line Interfaces:
   ```bash
   sudo config save -y
   ```
-- FRR (enter using `vtysh` from SONiC CLI) - sample prompt `leaf1#`
+- FRR (enter using `vtysh` from SONiC bash CLI) - sample prompt `leaf1#`
   FRR stores BGP EVPN configuration and is saved in `/etc/frr/frr.conf`.
   To save FRR configuration run:
   ```bash
@@ -708,7 +708,7 @@ All data packets will be encapsulated in VXLAN and transported to the destinatio
 
 On each Leaf, a VXLAN tunnel interface should be created with a unique VNI.
 
-Configuring VXLAN on Leaf1 - using **SONiC CLI**:
+Configuring VXLAN on Leaf1 - using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -735,7 +735,7 @@ In this step, we will configure a mac-vrf or VLAN on each Leaf and add the clien
 | Leaf1 | `110` | `10110` | `Ethernet36` | untagged |
 | Leaf2 | `110` | `10110` | `Ethernet36` | untagged |
 
-EVPN-VXLAN configuration on both Leaf1 - using **SONiC CLI**:
+EVPN-VXLAN configuration Leaf1 - using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -747,7 +747,7 @@ sudo config save -y
 EOF
 ```
 
-EVPN-VXLAN configuration on both Leaf2 - using **SONiC CLI**:
+EVPN-VXLAN configuration on Leaf2 - using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -761,7 +761,7 @@ EOF
 
 Enable BGP to advertise VNI:
 
-On both Leaf1, run the following command **Using FRR CLI**:
+On Leaf1, run the following command **Using FRR CLI**:
 
 ```bash
 router bgp 64501
@@ -769,7 +769,7 @@ router bgp 64501
   advertise-all-vni
 ```
 
-On both Leaf2, run the following command **Using FRR CLI**:
+On Leaf2, run the following command **Using FRR CLI**:
 
 ```bash
 router bgp 64502
@@ -822,7 +822,7 @@ Leave the ping running until the end of the L2 EVPN section.
 
 Verify the vlan (mac-vrf) configuration on leaf1.
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 show vlan brief
@@ -840,7 +840,7 @@ Expected output on leaf1:
 
 Verify client facing interface status on leaf1:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 show interfaces status | egrep "Interface|--|Ethernet36"
@@ -856,7 +856,7 @@ Expected output on leaf1:
 
 Verify VXLAN tunnel on leaf1:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 show vxlan tunnel
@@ -872,7 +872,7 @@ vtep                 1.1.1.1                        map_10110_Vlan110  10110 -> 
 
 Verify VXLAN Remote MAC on leaf1. This MAC should be the same as the MAC address noted above from client3.
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 show vxlan remotemac 2.2.2.2
@@ -983,7 +983,7 @@ Client2 & 4 are Layer 3 clients with IPs in different subnets.
 
 Client Layer 3 interface configuration on Leaf1:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -995,7 +995,7 @@ EOF
 
 Client Layer 3 interface configuration on Leaf2:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -1073,7 +1073,7 @@ We will include the client facing interface and the vxlan tunnel in this instanc
 
 EVPN-VXLAN configuration on Leaf1:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -1091,7 +1091,7 @@ EOF
 
 EVPN-VXLAN configuration on Leaf2:
 
-Using **SONiC CLI**:
+Using **SONiC bash CLI**:
 
 ```bash
 bash << 'EOF'
@@ -1136,7 +1136,7 @@ rtt min/avg/max/mdev = 2.066/2.842/4.184/0.952 ms
 
 ### VLAN and VXLAN Verification
 
-All commands executed **Using SONiC CLI** on Leaf1.
+All commands executed **Using SONiC bash CLI** on Leaf1.
 
 ```bash
 show vlan brief
