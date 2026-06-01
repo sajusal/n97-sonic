@@ -96,10 +96,9 @@ VM nodes integration in containerlab is based on the [hellt/vrnetlab](https://gi
 
 Start with cloning the project:
 
-```bash
-cd ~ && git clone https://github.com/hellt/vrnetlab.git && \
-cd ~/vrnetlab
-```
+              cd ~ && git clone https://github.com/hellt/vrnetlab.git && \
+              cd ~/vrnetlab
+
 
 ### Building SONiC container image
 
@@ -109,20 +108,18 @@ SONiC vs image (downloaded from [sonic.software](https://sonic.software/)) shoul
 
 Once image is downloaded, unzip the file and save as .qcow2 format.
 
-```bash
-gunzip sonic-vs-202511.img.gz
-cp sonic-vs-2025.11.img sonic-vs-202511.qcow2
-```
 
-```bash
-cp ~/images/sonic-vs-202511.qcow2 ~/vrnetlab/sonic/
-```
+            gunzip sonic-vs-202511.img.gz
+            cp sonic-vs-2025.11.img sonic-vs-202511.qcow2
+
+            cp ~/images/sonic-vs-202511.qcow2 ~/vrnetlab/sonic/
+
 
 Once copied, we can change to `~/vrnetlab/sonic` image and build the container image:
 
-```bash
-cd ~/vrnetlab/sonic && make
-```
+
+            cd ~/vrnetlab/sonic && make
+
 
 The resulting image will be tagged as `vrnetlab/sonic_sonic-vs:202405`. This can be verified using `docker images` command.
 
